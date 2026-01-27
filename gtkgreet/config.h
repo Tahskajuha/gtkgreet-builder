@@ -3,6 +3,6 @@
 
 #include <gtk/gtk.h>
 
-int config_update_command_selector(GtkWidget *combobox);
+int config_update_command_selector(GtkStringList *commandList);
 
 #endif

@@ -21,7 +21,6 @@ struct GtkGreet {
     GdkPixbuf *background;
 
     struct Window *focused_window;
-    guint draw_clock_source;
 
 #ifdef LAYER_SHELL
     gboolean use_layer_shell;
@@ -43,7 +42,6 @@ struct Window* gtkgreet_window_by_monitor(struct GtkGreet *gtkgreet, GdkMonitor 
 void gtkgreet_remove_window_by_widget(struct GtkGreet *gtkgreet, GtkWidget *widget);
 void gtkgreet_focus_window(struct GtkGreet *gtkgreet, struct Window* win);
 void gtkgreet_setup_question(struct GtkGreet *gtkgreet, enum QuestionType type, char* question, char* error);
-void gtkgreet_update_clocks(struct GtkGreet *gtkgreet);
 struct GtkGreet* create_gtkgreet();
 void gtkgreet_activate(struct GtkGreet *gtkgreet);
 void gtkgreet_destroy(struct GtkGreet *gtkgreet);
