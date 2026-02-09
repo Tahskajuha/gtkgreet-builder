@@ -1,7 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <assert.h>
-#include <time.h>
 
 #include <glib/gi18n.h>
 

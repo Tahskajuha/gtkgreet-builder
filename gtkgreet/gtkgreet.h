@@ -31,7 +31,6 @@ struct GtkGreet {
     enum QuestionType question_type;
     char *question;
     char *error;
-    char time[8];
     int question_cnt;
 };
 

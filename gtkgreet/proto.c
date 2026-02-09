@@ -13,7 +13,6 @@
 #include <glib/gi18n.h>
 
 #include "proto.h"
-#include "window.h"
 
 struct header {
     uint32_t magic;
