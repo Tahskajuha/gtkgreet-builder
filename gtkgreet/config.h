@@ -3,6 +3,6 @@
 
 #include <gtk/gtk.h>
 
-int config_update_command_selector(GtkStringList *commandList);
+void config_update_commands_model(gchar **commands, gsize commandsSize);
 
 #endif

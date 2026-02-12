@@ -3,47 +3,50 @@
 
 #include <gtk/gtk.h>
 
-
 enum QuestionType {
-	QuestionTypeInitial = 0,
-	QuestionTypeVisible = 1,
-	QuestionTypeSecret = 2,
-	QuestionTypeInfo = 3,
-	QuestionTypeError = 4,
+  QuestionTypeInitial = 0,
+  QuestionTypeVisible = 1,
+  QuestionTypeSecret = 2,
+  QuestionTypeInfo = 3,
+  QuestionTypeError = 4,
 };
 
 // Defined in window.h
 struct Window;
 
 struct GtkGreet {
-    GtkApplication *app;
-    GArray *windows;
-    GdkPixbuf *background;
+  GtkApplication *app;
+  GArray *windows;
+  GdkPixbuf *background;
 
-    struct Window *focused_window;
+  struct Window *focused_window;
 
 #ifdef LAYER_SHELL
-    gboolean use_layer_shell;
+  gboolean use_layer_shell;
 #endif
-    char* command;
+  GtkStringList *commandList;
 
-    char* selected_command;
-    enum QuestionType question_type;
-    char *question;
-    char *error;
-    int question_cnt;
+  char *selected_command;
+  enum QuestionType question_type;
+  char *question;
+  char *error;
+  int question_cnt;
 };
 
 extern struct GtkGreet *gtkgreet;
 
-struct Window* gtkgreet_window_by_widget(struct GtkGreet *gtkgreet, GtkWidget *window);
-struct Window* gtkgreet_window_by_monitor(struct GtkGreet *gtkgreet, GdkMonitor *monitor);
-void gtkgreet_remove_window_by_widget(struct GtkGreet *gtkgreet, GtkWidget *widget);
-void gtkgreet_focus_window(struct GtkGreet *gtkgreet, struct Window* win);
-void gtkgreet_setup_question(struct GtkGreet *gtkgreet, enum QuestionType type, char* question, char* error);
-struct GtkGreet* create_gtkgreet();
+struct Window *gtkgreet_window_by_widget(struct GtkGreet *gtkgreet,
+                                         GtkWidget *window);
+struct Window *gtkgreet_window_by_monitor(struct GtkGreet *gtkgreet,
+                                          GdkMonitor *monitor);
+void gtkgreet_remove_window_by_widget(struct GtkGreet *gtkgreet,
+                                      GtkWidget *widget);
+void gtkgreet_focus_window(struct GtkGreet *gtkgreet, struct Window *win);
+void gtkgreet_setup_question(struct GtkGreet *gtkgreet, enum QuestionType type,
+                             char *question, char *error);
+struct GtkGreet *create_gtkgreet();
 void gtkgreet_activate(struct GtkGreet *gtkgreet);
 void gtkgreet_destroy(struct GtkGreet *gtkgreet);
-char* gtkgreet_get_initial_question();
+char *gtkgreet_get_initial_question();
 
 #endif

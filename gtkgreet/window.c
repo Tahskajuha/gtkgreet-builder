@@ -9,12 +9,9 @@
 #include "actions.h"
 #include "config.h"
 #include "gtkgreet.h"
-#include "proto.h"
 #include "window.h"
 
 #include <gtk-layer-shell.h>
-
-static void window_set_focus(struct Window *win, struct Window *old);
 
 #ifdef LAYER_SHELL
 
@@ -26,20 +23,18 @@ static void window_set_focus_layer_shell(struct Window *win,
   gtk_layer_set_keyboard_interactivity(GTK_WINDOW(win->window), TRUE);
 }
 
-static gboolean window_enter_notify(GtkWidget *widget, gpointer data) {
+static void window_enter_notify(GtkEventControllerMotion *controller, double x,
+                                double y, gpointer data) {
+  GtkWidget *widget =
+      gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(controller));
   struct Window *win = gtkgreet_window_by_widget(gtkgreet, widget);
   gtkgreet_focus_window(gtkgreet, win);
-  return FALSE;
 }
 
 static void window_setup_layershell(struct Window *ctx) {
-  gtk_widget_add_events(ctx->window, GDK_ENTER_NOTIFY_MASK);
-  if (ctx->enter_notify_handler > 0) {
-    g_signal_handler_disconnect(ctx->window, ctx->enter_notify_handler);
-    ctx->enter_notify_handler = 0;
-  }
-  ctx->enter_notify_handler = g_signal_connect(
-      ctx->window, "enter-notify-event", G_CALLBACK(window_enter_notify), NULL);
+  GtkEventController *motion = gtk_event_controller_motion_new();
+  g_signal_connect(motion, "enter", G_CALLBACK(window_enter_notify), ctx);
+  gtk_widget_add_controller(ctx->window, motion);
 
   gtk_layer_init_for_window(GTK_WINDOW(ctx->window));
   gtk_layer_set_layer(GTK_WINDOW(ctx->window), GTK_LAYER_SHELL_LAYER_TOP);

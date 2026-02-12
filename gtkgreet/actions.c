@@ -88,8 +88,8 @@ void action_answer_question(GtkWidget *widget, gpointer data) {
       free(gtkgreet->selected_command);
       gtkgreet->selected_command = NULL;
     }
-    // TODO:Change this to a predefined ID
-    gtkgreet->selected_command = get_text(ctx->command_selector);
+    gtkgreet->selected_command = get_text(
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->command)));
 
     struct request req = {
         .request_type = request_type_create_session,
