@@ -18,9 +18,6 @@ static char *config = NULL;
 static gboolean use_layer_shell = FALSE;
 #endif
 
-// Array of GOptionEntries (glib's command-line argument parser) specifying
-// whether to use layer shell, the command, background image and stylesheet
-
 static GOptionEntry entries[] = {
 
 #ifdef LAYER_SHELL
@@ -107,11 +104,14 @@ static void attach_custom_style(const char *path) {
   g_object_unref(provider);
 }
 
+static void attach_custom_layout(const char *path) {}
+
 static void activate(GtkApplication *app, gpointer user_data) {
 #ifdef LAYER_SHELL
   gtkgreet->use_layer_shell = use_layer_shell;
 #endif
 
+  // Read config file
   if (config != NULL) {
     GKeyFile *kf = g_key_file_new();
 
@@ -120,25 +120,32 @@ static void activate(GtkApplication *app, gpointer user_data) {
       g_error("Failed to load config: %s", error->message);
     }
 
-    error = NULL;
+    // Environments list
     gsize env_list_length = 0;
     gchar **commands = g_key_file_get_string_list(kf, "session", "environments",
                                                   &env_list_length, &error);
     if (error != NULL) {
-      g_clear_error(&error);
       commands = NULL;
     }
     config_update_commands_model(commands, env_list_length);
     g_strfreev(commands);
+    g_clear_error(&error);
 
-    error = NULL;
-    char *style = g_key_file_get_string(kf, "ui.style", "css", &error);
-    if (style != NULL && error == NULL) {
+    // Style file path
+    char *style = g_key_file_get_string(kf, "ui", "style", &error);
+    if (style && *style) {
       attach_custom_style(style);
-      g_free(style);
-    } else {
-      g_clear_error(&error);
     }
+    g_free(style);
+    g_clear_error(&error);
+
+    // UI file path
+    char *layout = g_key_file_get_string(kf, "ui", "layout", &error);
+    if (layout && *layout) {
+      attach_custom_layout(layout);
+    }
+    g_free(layout);
+    g_clear_error(&error);
 
     g_key_file_unref(kf);
   } else {

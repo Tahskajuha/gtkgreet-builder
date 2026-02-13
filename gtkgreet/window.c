@@ -7,7 +7,6 @@
 #include <gtk/gtk.h>
 
 #include "actions.h"
-#include "config.h"
 #include "gtkgreet.h"
 #include "window.h"
 
@@ -51,7 +50,7 @@ static void window_setup_layershell(struct Window *ctx) {
 
 #endif
 
-void on_visibility_icon_press(GtkWidget *widget, gpointer data) {
+/* void on_visibility_icon_press(GtkWidget *widget, gpointer data) {
   gboolean visible = gtk_entry_get_visibility(GTK_ENTRY(widget));
 
   if (visible) {
@@ -63,7 +62,7 @@ void on_visibility_icon_press(GtkWidget *widget, gpointer data) {
     gtk_entry_set_icon_from_icon_name(
         GTK_ENTRY(widget), GTK_ENTRY_ICON_SECONDARY, "view-conceal-symbolic");
   }
-}
+} */
 
 void window_setup_question(struct Window *ctx, enum QuestionType type,
                            char *question, char *error) {
