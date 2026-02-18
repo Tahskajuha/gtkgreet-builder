@@ -5,10 +5,7 @@
 
 enum QuestionType {
   QuestionTypeInitial = 0,
-  QuestionTypeVisible = 1,
-  QuestionTypeSecret = 2,
-  QuestionTypeInfo = 3,
-  QuestionTypeError = 4,
+  QuestionTypePamPrompt = 1,
 };
 
 // Defined in window.h
@@ -16,10 +13,8 @@ struct Window;
 
 struct GtkGreet {
   GtkApplication *app;
-  GArray *windows;
+  struct Window *window;
   GdkPixbuf *background;
-
-  struct Window *focused_window;
 
 #ifdef LAYER_SHELL
   gboolean use_layer_shell;
@@ -29,6 +24,7 @@ struct GtkGreet {
   char *selected_command;
   enum QuestionType question_type;
   char *question;
+  char *info;
   char *error;
   int question_cnt;
 };
@@ -41,7 +37,6 @@ struct Window *gtkgreet_window_by_monitor(struct GtkGreet *gtkgreet,
                                           GdkMonitor *monitor);
 void gtkgreet_remove_window_by_widget(struct GtkGreet *gtkgreet,
                                       GtkWidget *widget);
-void gtkgreet_focus_window(struct GtkGreet *gtkgreet, struct Window *win);
 void gtkgreet_setup_question(struct GtkGreet *gtkgreet, enum QuestionType type,
                              char *question, char *error);
 struct GtkGreet *create_gtkgreet();

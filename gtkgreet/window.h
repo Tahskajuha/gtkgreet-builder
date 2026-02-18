@@ -22,7 +22,7 @@ struct Window {
 struct Window *create_window(GdkMonitor *monitor);
 void window_configure(struct Window *win);
 void window_setup_question(struct Window *ctx, enum QuestionType type,
-                           char *question, char *error);
+                           char *question, char *error, char *info);
 void window_swap_focus(struct Window *win, struct Window *old);
 
 #endif

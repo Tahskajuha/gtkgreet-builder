@@ -29,62 +29,23 @@ static GOptionEntry entries[] = {
     {NULL, 0, 0, 0, NULL, NULL, NULL}};
 
 #ifdef LAYER_SHELL
-static void reload_outputs() {
-  GdkDisplay *display = gdk_display_get_default();
-
-  // Make note of all existing windows
-  GArray *dead_windows = g_array_new(FALSE, TRUE, sizeof(struct Window *));
-  for (guint idx = 0; idx < gtkgreet->windows->len; idx++) {
-    struct Window *ctx = g_array_index(gtkgreet->windows, struct Window *, idx);
-    g_array_append_val(dead_windows, ctx);
-  }
-
-  // Go through all monitors
-  for (int i = 0; i < gdk_display_get_n_monitors(display); i++) {
-    GdkMonitor *monitor = gdk_display_get_monitor(display, i);
-    struct Window *w = gtkgreet_window_by_monitor(gtkgreet, monitor);
-    if (w != NULL) {
-      // We already have this monitor, remove from dead_windows list
-      for (guint ydx = 0; ydx < dead_windows->len; ydx++) {
-        if (w == g_array_index(dead_windows, struct Window *, ydx)) {
-          g_array_remove_index_fast(dead_windows, ydx);
-          break;
-        }
-      }
-    } else {
-      create_window(monitor);
-    }
-  }
-
-  // Remove all windows left behind
-  for (guint idx = 0; idx < dead_windows->len; idx++) {
-    struct Window *w = g_array_index(dead_windows, struct Window *, idx);
-    gtk_widget_destroy(w->window);
-    if (gtkgreet->focused_window == w) {
-      gtkgreet->focused_window = NULL;
-    }
-  }
-
-  for (guint idx = 0; idx < gtkgreet->windows->len; idx++) {
-    struct Window *win = g_array_index(gtkgreet->windows, struct Window *, idx);
-    window_configure(win);
-  }
-
-  g_array_unref(dead_windows);
-}
-
-static void monitors_changed(GdkDisplay *display, GdkMonitor *monitor) {
-  reload_outputs();
-}
-
 static gboolean setup_layer_shell() {
   if (gtkgreet->use_layer_shell) {
-    reload_outputs();
     GdkDisplay *display = gdk_display_get_default();
-    g_signal_connect(display, "monitor-added", G_CALLBACK(monitors_changed),
-                     NULL);
-    g_signal_connect(display, "monitor-removed", G_CALLBACK(monitors_changed),
-                     NULL);
+
+    // Go through all monitors
+    GListModel *monitors = gdk_display_get_monitors(display);
+    GdkMonitor *primary = NULL;
+    if (g_list_model_get_n_items(monitors) > 0) {
+      primary = g_list_model_get_item(monitors, 0);
+
+      gtkgreet->window = create_window(primary);
+      g_object_unref(primary);
+    } else {
+      g_error("Could not find any monitors");
+    }
+
+    window_configure(gtkgreet->window);
     return TRUE;
   } else {
     return FALSE;
@@ -106,57 +67,59 @@ static void attach_custom_style(const char *path) {
 
 static void attach_custom_layout(const char *path) {}
 
+static void read_config() {
+  GKeyFile *kf = g_key_file_new();
+
+  GError *error = NULL;
+  if (!g_key_file_load_from_file(kf, config, G_KEY_FILE_NONE, &error)) {
+    g_error("Failed to load config: %s", error->message);
+  }
+
+  // Environments list
+  gsize env_list_length = 0;
+  gchar **commands = g_key_file_get_string_list(kf, "session", "environments",
+                                                &env_list_length, &error);
+  if (error != NULL) {
+    commands = NULL;
+  }
+  config_update_commands_model(commands, env_list_length);
+  g_strfreev(commands);
+  g_clear_error(&error);
+
+  // Style file path
+  char *style = g_key_file_get_string(kf, "ui", "style", &error);
+  if (style && *style) {
+    attach_custom_style(style);
+  }
+  g_free(style);
+  g_clear_error(&error);
+
+  // UI file path
+  char *layout = g_key_file_get_string(kf, "ui", "layout", &error);
+  if (layout && *layout) {
+    attach_custom_layout(layout);
+  }
+  g_free(layout);
+  g_clear_error(&error);
+
+  g_key_file_unref(kf);
+}
+
 static void activate(GtkApplication *app, gpointer user_data) {
 #ifdef LAYER_SHELL
   gtkgreet->use_layer_shell = use_layer_shell;
 #endif
 
-  // Read config file
   if (config != NULL) {
-    GKeyFile *kf = g_key_file_new();
-
-    GError *error = NULL;
-    if (!g_key_file_load_from_file(kf, config, G_KEY_FILE_NONE, &error)) {
-      g_error("Failed to load config: %s", error->message);
-    }
-
-    // Environments list
-    gsize env_list_length = 0;
-    gchar **commands = g_key_file_get_string_list(kf, "session", "environments",
-                                                  &env_list_length, &error);
-    if (error != NULL) {
-      commands = NULL;
-    }
-    config_update_commands_model(commands, env_list_length);
-    g_strfreev(commands);
-    g_clear_error(&error);
-
-    // Style file path
-    char *style = g_key_file_get_string(kf, "ui", "style", &error);
-    if (style && *style) {
-      attach_custom_style(style);
-    }
-    g_free(style);
-    g_clear_error(&error);
-
-    // UI file path
-    char *layout = g_key_file_get_string(kf, "ui", "layout", &error);
-    if (layout && *layout) {
-      attach_custom_layout(layout);
-    }
-    g_free(layout);
-    g_clear_error(&error);
-
-    g_key_file_unref(kf);
+    read_config();
   } else {
     g_error("A default configuration will be added soon");
   }
 
   gtkgreet_activate(gtkgreet);
   if (!setup_layer_shell()) {
-    struct Window *win = create_window(NULL);
-    gtkgreet_focus_window(gtkgreet, win);
-    window_configure(win);
+    gtkgreet->window = create_window(NULL);
+    window_configure(gtkgreet->window);
   }
 }
 
