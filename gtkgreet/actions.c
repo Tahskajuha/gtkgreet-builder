@@ -9,6 +9,7 @@
 #include "actions.h"
 #include "gtkgreet.h"
 #include "proto.h"
+#include "uimodel.h"
 #include "window.h"
 
 static void handle_response(struct response resp, int start_req) {
@@ -89,7 +90,7 @@ void action_answer_question(GtkWidget *widget, gpointer data) {
       gtkgreet->selected_command = NULL;
     }
     gtkgreet->selected_command = get_text(
-        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->command)));
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->readCommand)));
 
     struct request req = {
         .request_type = request_type_create_session,

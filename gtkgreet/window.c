@@ -6,7 +6,6 @@
 
 #include <gtk/gtk.h>
 
-#include "actions.h"
 #include "gtkgreet.h"
 #include "window.h"
 

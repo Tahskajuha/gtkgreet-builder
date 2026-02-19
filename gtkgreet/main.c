@@ -5,12 +5,14 @@
 
 #include "config.h"
 #include "gtkgreet.h"
+#include "uimodel.h"
 #include "window.h"
 
 #include <glib/gi18n.h>
 #include <locale.h>
 
 struct GtkGreet *gtkgreet = NULL;
+struct UiModel *uimodel = NULL;
 
 static char *config = NULL;
 
@@ -74,6 +76,7 @@ static void read_config() {
   if (!g_key_file_load_from_file(kf, config, G_KEY_FILE_NONE, &error)) {
     g_error("Failed to load config: %s", error->message);
   }
+  g_clear_error(&error);
 
   // Environments list
   gsize env_list_length = 0;
@@ -100,6 +103,25 @@ static void read_config() {
     attach_custom_layout(layout);
   }
   g_free(layout);
+  g_clear_error(&error);
+
+  // ID names
+  char *readCommand = g_key_file_get_string(kf, "roles", "readCommand", &error);
+  if (readCommand && *readCommand) {
+    uimodel->readCommand = readCommand;
+  } else {
+    uimodel->readCommand = NULL;
+    g_free(readCommand);
+  }
+  g_clear_error(&error);
+
+  char *commandList = g_key_file_get_string(kf, "roles", "commandList", &error);
+  if (commandList && *commandList) {
+    uimodel->commandList = commandList;
+  } else {
+    uimodel->commandList = NULL;
+    g_free(commandList);
+  }
   g_clear_error(&error);
 
   g_key_file_unref(kf);
