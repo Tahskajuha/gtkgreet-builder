@@ -36,6 +36,9 @@ struct GtkGreet *create_gtkgreet() {
 }
 
 void gtkgreet_activate(struct GtkGreet *gtkgreet) {
+#ifdef LAYER_SHELL
+  window_setup_layershell(gtkgreet->window);
+#endif
   gtkgreet_setup_question(gtkgreet, QuestionTypeInitial,
                           gtkgreet_get_initial_question(), NULL);
 }

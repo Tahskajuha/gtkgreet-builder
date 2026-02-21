@@ -13,7 +13,7 @@
 
 #ifdef LAYER_SHELL
 
-static void window_setup_layershell(struct Window *ctx) {
+void window_setup_layershell(struct Window *ctx) {
   GtkEventController *motion = gtk_event_controller_motion_new();
   gtk_widget_add_controller(ctx->window, motion);
 
@@ -35,7 +35,7 @@ static void window_setup_layershell(struct Window *ctx) {
 void window_setup_question(struct Window *ctx, enum QuestionType type,
                            char *question, char *error, char *info) {}
 
-static void window_empty(struct Window *ctx) {}
+void window_empty(struct Window *ctx) {}
 
 struct Window *create_window(GdkMonitor *monitor) {
   struct Window *w = calloc(1, sizeof(struct Window));
@@ -44,11 +44,6 @@ struct Window *create_window(GdkMonitor *monitor) {
     exit(1);
   }
   w->monitor = monitor;
-
-  w->window = gtk_application_window_new(gtkgreet->app);
-  g_signal_connect(w->window, "destroy", G_CALLBACK(window_empty), NULL);
-  gtk_window_set_title(GTK_WINDOW(w->window), "Greeter");
-  gtk_window_set_default_size(GTK_WINDOW(w->window), 200, 200);
 
   return w;
 }

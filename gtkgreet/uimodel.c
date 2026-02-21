@@ -8,5 +8,7 @@
 
 struct UiModel *create_uimodel() {
   uimodel = calloc(1, sizeof(struct UiModel));
+  uimodel->initial_state = g_ptr_array_new_with_free_func(g_free);
+  uimodel->pam_state = g_ptr_array_new_with_free_func(g_free);
   return uimodel;
 }

@@ -8,8 +8,8 @@ submit = "submitID"
 cancel = "cancelID"
 errorPrompt = "errorPromptID"
 infoPrompt = "infoPromptID"
-initialQuestion = "initialAnswerID"
-pamPrompt = "promptAnswerID"
+initialAnswer = "initialAnswerID"
+pamPromptAnswer = "promptAnswerID"
 
 [behaviors]
 poweroff = "powerbuttonID"
