@@ -37,8 +37,6 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
 
 static void window_empty(struct Window *ctx) {}
 
-static void window_setup(struct Window *ctx) {}
-
 struct Window *create_window(GdkMonitor *monitor) {
   struct Window *w = calloc(1, sizeof(struct Window));
   if (w == NULL) {

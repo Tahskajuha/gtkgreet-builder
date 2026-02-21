@@ -4,3 +4,5 @@ struct UiModel {
 };
 
 extern struct UiModel *uimodel;
+
+struct UiModel *create_uimodel();

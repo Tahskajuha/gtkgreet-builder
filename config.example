@@ -1,0 +1,27 @@
+[ui]
+style = "path/to/stylesheet"
+layout = "path/to/xmlfile"
+
+[auth]
+readCommand = "readCommandID"
+submit = "submitID"
+cancel = "cancelID"
+errorPrompt = "errorPromptID"
+infoPrompt = "infoPromptID"
+initialQuestion = "initialAnswerID"
+pamPrompt = "promptAnswerID"
+
+[behaviors]
+poweroff = "powerbuttonID"
+suspend = "suspendbuttonID"
+reboot = "rebootbuttonID"
+commandList = "commandListID"
+
+[state.initial]
+visible = []
+
+[state.pam]
+visible = []
+
+[session]
+environments = []

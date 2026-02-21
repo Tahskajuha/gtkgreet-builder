@@ -31,12 +31,6 @@ struct GtkGreet {
 
 extern struct GtkGreet *gtkgreet;
 
-struct Window *gtkgreet_window_by_widget(struct GtkGreet *gtkgreet,
-                                         GtkWidget *window);
-struct Window *gtkgreet_window_by_monitor(struct GtkGreet *gtkgreet,
-                                          GdkMonitor *monitor);
-void gtkgreet_remove_window_by_widget(struct GtkGreet *gtkgreet,
-                                      GtkWidget *widget);
 void gtkgreet_setup_question(struct GtkGreet *gtkgreet, enum QuestionType type,
                              char *question, char *error);
 struct GtkGreet *create_gtkgreet();

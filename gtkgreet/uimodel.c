@@ -5,3 +5,8 @@
 
 #include "actions.h"
 #include "uimodel.h"
+
+struct UiModel *create_uimodel() {
+  uimodel = calloc(1, sizeof(struct UiModel));
+  return uimodel;
+}

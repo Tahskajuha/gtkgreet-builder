@@ -152,6 +152,7 @@ int main(int argc, char **argv) {
   textdomain(GETTEXT_PACKAGE);
 
   gtkgreet = create_gtkgreet();
+  uimodel = create_uimodel();
 
   g_application_add_main_option_entries(G_APPLICATION(gtkgreet->app), entries);
   g_application_set_option_context_summary(
