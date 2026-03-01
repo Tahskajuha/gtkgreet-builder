@@ -1,6 +1,6 @@
 [ui]
-style = "path/to/stylesheet"
-layout = "path/to/xmlfile"
+style = path/to/stylesheet
+layout = path/to/xmlfile
 
 [auth]
 readCommand = "readCommandID"
