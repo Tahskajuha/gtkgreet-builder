@@ -8,7 +8,7 @@
 #include "window.h"
 
 void gtkgreet_setup_question(struct GtkGreet *gtkgreet, enum QuestionType type,
-                             char *question, char *error) {
+                             char *question, char *error, char *info) {
   if (gtkgreet->question != NULL) {
     free(gtkgreet->question);
     gtkgreet->question = NULL;
@@ -23,7 +23,7 @@ void gtkgreet_setup_question(struct GtkGreet *gtkgreet, enum QuestionType type,
   if (error != NULL)
     gtkgreet->error = strdup(error);
   gtkgreet->question_cnt += 1;
-  window_configure(gtkgreet->window);
+  window_setup_question(gtkgreet->window, type, question, error, info);
 }
 
 struct GtkGreet *create_gtkgreet() {
@@ -40,7 +40,7 @@ void gtkgreet_activate(struct GtkGreet *gtkgreet) {
   window_setup_layershell(gtkgreet->window);
 #endif
   gtkgreet_setup_question(gtkgreet, QuestionTypeInitial,
-                          gtkgreet_get_initial_question(), NULL);
+                          gtkgreet_get_initial_question(), NULL, NULL);
 }
 
 void gtkgreet_destroy(struct GtkGreet *gtkgreet) {

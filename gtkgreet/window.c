@@ -9,7 +9,7 @@
 #include "gtkgreet.h"
 #include "window.h"
 
-#include <gtk-layer-shell.h>
+#include <gtk4-layer-shell.h>
 
 #ifdef LAYER_SHELL
 

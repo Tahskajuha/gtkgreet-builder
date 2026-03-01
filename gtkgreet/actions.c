@@ -35,14 +35,14 @@ static void handle_response(struct response resp, int start_req) {
 
       char *error = _("Unexpected auth question");
       gtkgreet_setup_question(gtkgreet, QuestionTypeInitial,
-                              gtkgreet_get_initial_question(), error);
+                              gtkgreet_get_initial_question(), error, NULL);
       break;
     }
 
     gtkgreet_setup_question(
         gtkgreet,
         (enum QuestionType)resp.body.response_auth_message.auth_message_type,
-        resp.body.response_auth_message.auth_message, NULL);
+        resp.body.response_auth_message.auth_message, NULL, NULL);
     break;
   }
   case response_type_roundtrip_error:
@@ -60,7 +60,7 @@ static void handle_response(struct response resp, int start_req) {
       error = resp.body.response_error.description;
     }
     gtkgreet_setup_question(gtkgreet, QuestionTypeInitial,
-                            gtkgreet_get_initial_question(), error);
+                            gtkgreet_get_initial_question(), error, NULL);
     break;
   }
   }
@@ -95,8 +95,9 @@ void action_answer_question(GtkWidget *widget, gpointer data) {
     struct request req = {
         .request_type = request_type_create_session,
     };
-    if (ctx->input_field != NULL) {
-      char *text = get_text(ctx->input_field);
+    if (gtk_builder_get_object(ctx->builder, uimodel->initialAnswer) != NULL) {
+      char *text = get_text(GTK_WIDGET(
+          gtk_builder_get_object(ctx->builder, uimodel->initialAnswer)));
       strncpy(req.body.request_create_session.username, text,
               sizeof(req.body.request_create_session.username));
       g_free(text);
@@ -104,26 +105,18 @@ void action_answer_question(GtkWidget *widget, gpointer data) {
     handle_response(roundtrip(req), 0);
     break;
   }
-  case QuestionTypeSecret:
-  case QuestionTypeVisible: {
+  case QuestionTypePamPrompt: {
     struct request req = {
         .request_type = request_type_post_auth_message_response,
     };
-    if (ctx->input_field != NULL) {
-      char *text = get_text(ctx->input_field);
+    if (gtk_builder_get_object(ctx->builder, uimodel->pamPromptAnswer) !=
+        NULL) {
+      char *text = get_text(GTK_WIDGET(
+          gtk_builder_get_object(ctx->builder, uimodel->pamPromptAnswer)));
       strncpy(req.body.request_create_session.username, text,
               sizeof(req.body.request_create_session.username));
       g_free(text);
     }
-    handle_response(roundtrip(req), 0);
-    break;
-  }
-  case QuestionTypeInfo:
-  case QuestionTypeError: {
-    struct request req = {
-        .request_type = request_type_post_auth_message_response,
-    };
-    req.body.request_post_auth_message_response.response[0] = '\0';
     handle_response(roundtrip(req), 0);
     break;
   }
@@ -140,5 +133,5 @@ void action_cancel_question(GtkWidget *widget, gpointer data) {
   }
 
   gtkgreet_setup_question(gtkgreet, QuestionTypeInitial,
-                          gtkgreet_get_initial_question(), NULL);
+                          gtkgreet_get_initial_question(), NULL, NULL);
 }
