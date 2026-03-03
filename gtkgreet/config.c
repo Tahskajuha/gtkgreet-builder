@@ -19,6 +19,11 @@ static gboolean is_duplicate(const char *str) {
   return FALSE;
 }
 
+static void widget_exists(GtkBuilder *builder, const char *str) {
+  if (!gtk_builder_get_object(builder, str))
+    g_error("Layout file does not contain required %s object", str);
+}
+
 static char *get_string_from_file(GKeyFile *kf, const char *section,
                                   const char *key, gboolean required) {
   GError *error = NULL;
@@ -50,7 +55,7 @@ static char **get_stringlist_from_file(GKeyFile *kf, const char *section,
   }
 }
 
-static gboolean is_auth_widget(char *str) {
+static gboolean is_auth_widget(const char *str) {
   if (g_strcmp0(uimodel->readCommand, str) == 0) {
     return TRUE;
   } else if (g_strcmp0(uimodel->submit, str) == 0) {
@@ -88,11 +93,16 @@ static void attach_custom_layout(const char *path) {
     g_error("Failed to load layout file: %s", error->message);
   }
   gtkgreet->window->builder = builder;
+  widget_exists(builder, "main_window");
+  widget_exists(builder, uimodel->readCommand);
+  widget_exists(builder, uimodel->submit);
+  widget_exists(builder, uimodel->cancel);
+  widget_exists(builder, uimodel->errorPrompt);
+  widget_exists(builder, uimodel->infoPrompt);
+  widget_exists(builder, uimodel->initialAnswer);
+  widget_exists(builder, uimodel->pamPromptAnswer);
   GtkWidget *window =
       GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
-  if (!window) {
-    g_error("Layout file does not contain required 'main_window' object");
-  }
   gtkgreet->window->window = window;
 
   gtk_window_set_application(GTK_WINDOW(window), gtkgreet->app);
@@ -138,16 +148,6 @@ void read_config(const char *config) {
     g_error("Failed to load config: %s", error->message);
   }
   g_clear_error(&error);
-
-  // UI file path
-  char *layout = get_string_from_file(kf, "ui", "layout", TRUE);
-  attach_custom_layout(layout);
-  g_free(layout);
-
-  // Style file path
-  char *style = get_string_from_file(kf, "ui", "style", TRUE);
-  attach_custom_style(style);
-  g_free(style);
 
   // Read auth widgets first
   char *readCommand = get_string_from_file(kf, "auth", "readCommand", TRUE);
@@ -207,6 +207,16 @@ void read_config(const char *config) {
     g_ptr_array_add(uimodel->pam_state, g_strdup(pam_state_list[i]));
   }
   g_strfreev(pam_state_list);
+
+  // UI file path
+  char *layout = get_string_from_file(kf, "ui", "layout", TRUE);
+  attach_custom_layout(layout);
+  g_free(layout);
+
+  // Style file path
+  char *style = get_string_from_file(kf, "ui", "style", TRUE);
+  attach_custom_style(style);
+  g_free(style);
 
   g_key_file_unref(kf);
 }
