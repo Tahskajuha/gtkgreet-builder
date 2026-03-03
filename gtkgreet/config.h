@@ -3,6 +3,6 @@
 
 #include <gtk/gtk.h>
 
-void config_update_commands_model(gchar **commands, gsize commandsSize);
+void read_config(const char *config);
 
 #endif

@@ -1,3 +1,6 @@
+#ifndef _UIMODEL_H
+#define _UIMODEL_H
+
 #include <glib/gi18n.h>
 
 struct UiModel {
@@ -21,3 +24,5 @@ struct UiModel {
 extern struct UiModel *uimodel;
 
 struct UiModel *create_uimodel();
+
+#endif
