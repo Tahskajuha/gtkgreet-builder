@@ -31,8 +31,7 @@ struct GtkGreet {
 
 extern struct GtkGreet *gtkgreet;
 
-void gtkgreet_setup_question(struct GtkGreet *gtkgreet, enum QuestionType type,
-                             char *question, char *error, char *info);
+void gtkgreet_setup_question(struct GtkGreet *gtkgreet);
 struct GtkGreet *create_gtkgreet();
 void gtkgreet_activate(struct GtkGreet *gtkgreet);
 void gtkgreet_destroy(struct GtkGreet *gtkgreet);

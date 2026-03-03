@@ -7,23 +7,10 @@
 #include "gtkgreet.h"
 #include "window.h"
 
-void gtkgreet_setup_question(struct GtkGreet *gtkgreet, enum QuestionType type,
-                             char *question, char *error, char *info) {
-  if (gtkgreet->question != NULL) {
-    free(gtkgreet->question);
-    gtkgreet->question = NULL;
-  }
-  if (gtkgreet->error != NULL) {
-    free(gtkgreet->error);
-    gtkgreet->error = NULL;
-  }
-  gtkgreet->question_type = type;
-  if (question != NULL)
-    gtkgreet->question = strdup(question);
-  if (error != NULL)
-    gtkgreet->error = strdup(error);
+void gtkgreet_setup_question(struct GtkGreet *gtkgreet) {
   gtkgreet->question_cnt += 1;
-  window_setup_question(gtkgreet->window, type, question, error, info);
+  window_setup_question(gtkgreet->window, gtkgreet->question_type,
+                        gtkgreet->question, gtkgreet->error, gtkgreet->info);
 }
 
 struct GtkGreet *create_gtkgreet() {
@@ -39,26 +26,28 @@ void gtkgreet_activate(struct GtkGreet *gtkgreet) {
 #ifdef LAYER_SHELL
   window_setup_layershell(gtkgreet->window);
 #endif
-  gtkgreet_setup_question(gtkgreet, QuestionTypeInitial,
-                          gtkgreet_get_initial_question(), NULL, NULL);
+  gtkgreet->question_type = QuestionTypeInitial;
+  g_free(gtkgreet->question);
+  gtkgreet->question = g_strdup(gtkgreet_get_initial_question());
+  g_free(gtkgreet->error);
+  gtkgreet->error = NULL;
+  g_free(gtkgreet->info);
+  gtkgreet->info = NULL;
+  gtkgreet_setup_question(gtkgreet);
 }
 
 void gtkgreet_destroy(struct GtkGreet *gtkgreet) {
-  if (gtkgreet->question != NULL) {
-    free(gtkgreet->question);
-    gtkgreet->question = NULL;
-  }
-  if (gtkgreet->error != NULL) {
-    free(gtkgreet->error);
-    gtkgreet->error = NULL;
-  }
+  g_free(gtkgreet->question);
+  gtkgreet->question = NULL;
+  g_free(gtkgreet->error);
+  gtkgreet->error = NULL;
   if (gtkgreet->commandList != NULL) {
     g_object_unref(gtkgreet->commandList);
   }
 
   g_object_unref(gtkgreet->app);
 
-  free(gtkgreet);
+  g_free(gtkgreet);
 }
 
 char *gtkgreet_get_initial_question() { return _("Username:"); }
