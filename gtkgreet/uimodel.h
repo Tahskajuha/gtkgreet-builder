@@ -2,6 +2,7 @@
 #define _UIMODEL_H
 
 #include <glib/gi18n.h>
+#include <window.h>
 
 struct UiModel {
   char *readCommand;
@@ -24,5 +25,6 @@ struct UiModel {
 extern struct UiModel *uimodel;
 
 struct UiModel *create_uimodel();
+void bind_widgets(struct Window *ctx);
 
 #endif

@@ -33,7 +33,9 @@ void window_setup_layershell(struct Window *ctx) {
 #endif
 
 void window_setup_question(struct Window *ctx, enum QuestionType type,
-                           char *question, char *error, char *info) {}
+                           char *question, char *error, char *info) {
+  gtk_window_present(GTK_WINDOW(ctx->window));
+}
 
 void window_empty(struct Window *ctx) {}
 

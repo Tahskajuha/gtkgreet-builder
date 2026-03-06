@@ -88,9 +88,9 @@ static void attach_custom_layout(const char *path) {
   GtkBuilder *builder = gtk_builder_new();
   GError *error = NULL;
 
-  gtk_builder_add_from_file(builder, path, &error);
-  if (error != NULL) {
-    g_error("Failed to load layout file: %s", error->message);
+  if (!gtk_builder_add_from_file(builder, path, &error)) {
+    g_error("Failed to load layout file: %s",
+            error ? error->message : "unknown error");
   }
   gtkgreet->window->builder = builder;
   widget_exists(builder, "main_window");
@@ -106,6 +106,8 @@ static void attach_custom_layout(const char *path) {
   gtkgreet->window->window = window;
 
   gtk_window_set_application(GTK_WINDOW(window), gtkgreet->app);
+
+  bind_widgets(gtkgreet->window);
   g_signal_connect(gtkgreet->window->window, "destroy",
                    G_CALLBACK(window_empty), gtkgreet->window);
 }
