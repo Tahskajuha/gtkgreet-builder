@@ -60,12 +60,6 @@ static gboolean is_auth_widget(const char *str) {
     return TRUE;
   } else if (g_strcmp0(uimodel->submit, str) == 0) {
     return TRUE;
-  } else if (g_strcmp0(uimodel->cancel, str) == 0) {
-    return TRUE;
-  } else if (g_strcmp0(uimodel->errorPrompt, str) == 0) {
-    return TRUE;
-  } else if (g_strcmp0(uimodel->infoPrompt, str) == 0) {
-    return TRUE;
   } else if (g_strcmp0(uimodel->initialAnswer, str) == 0) {
     return TRUE;
   } else if (g_strcmp0(uimodel->pamPromptAnswer, str) == 0) {
@@ -96,9 +90,6 @@ static void attach_custom_layout(const char *path) {
   widget_exists(builder, "main_window");
   widget_exists(builder, uimodel->readCommand);
   widget_exists(builder, uimodel->submit);
-  widget_exists(builder, uimodel->cancel);
-  widget_exists(builder, uimodel->errorPrompt);
-  widget_exists(builder, uimodel->infoPrompt);
   widget_exists(builder, uimodel->initialAnswer);
   widget_exists(builder, uimodel->pamPromptAnswer);
   GtkWidget *window =
@@ -156,12 +147,6 @@ void read_config(const char *config) {
   uimodel->readCommand = readCommand;
   char *submit = get_string_from_file(kf, "auth", "submit", TRUE);
   uimodel->submit = submit;
-  char *cancel = get_string_from_file(kf, "auth", "cancel", TRUE);
-  uimodel->cancel = cancel;
-  char *errorPrompt = get_string_from_file(kf, "auth", "errorPrompt", TRUE);
-  uimodel->errorPrompt = errorPrompt;
-  char *infoPrompt = get_string_from_file(kf, "auth", "infoPrompt", TRUE);
-  uimodel->infoPrompt = infoPrompt;
   char *initialAnswer = get_string_from_file(kf, "auth", "initialAnswer", TRUE);
   uimodel->initialAnswer = initialAnswer;
   char *pamPromptAnswer =
@@ -178,6 +163,16 @@ void read_config(const char *config) {
   uimodel->suspend = suspend;
   char *reboot = get_string_from_file(kf, "behaviors", "reboot", FALSE);
   uimodel->reboot = reboot;
+  char *cancel = get_string_from_file(kf, "behaviors", "cancel", FALSE);
+  uimodel->cancel = cancel;
+  char *questionPrompt =
+      get_string_from_file(kf, "behaviors", "questionPrompt", FALSE);
+  uimodel->questionPrompt = questionPrompt;
+  char *errorPrompt =
+      get_string_from_file(kf, "behaviors", "errorPrompt", FALSE);
+  uimodel->errorPrompt = errorPrompt;
+  char *infoPrompt = get_string_from_file(kf, "behaviors", "infoPrompt", FALSE);
+  uimodel->infoPrompt = infoPrompt;
 
   // Environments list
   gsize env_list_length = 0;

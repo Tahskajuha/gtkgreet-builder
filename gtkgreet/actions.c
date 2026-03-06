@@ -56,10 +56,10 @@ static void handle_response(struct response resp, int start_req) {
       gtkgreet_setup_question(gtkgreet);
       break;
     }
+    gtkgreet->question_type = QuestionTypePamPrompt;
     switch (resp.body.response_auth_message.auth_message_type) {
     case auth_message_type_visible:
     case auth_message_type_secret: {
-      gtkgreet->question_type = QuestionTypePamPrompt;
       g_free(gtkgreet->question);
       gtkgreet->question =
           g_strdup(resp.body.response_auth_message.auth_message);
@@ -70,6 +70,7 @@ static void handle_response(struct response resp, int start_req) {
     case auth_message_type_info: {
       append_string(&gtkgreet->info,
                     resp.body.response_auth_message.auth_message);
+      gtkgreet_setup_question(gtkgreet);
       struct request req = {
           .request_type = request_type_post_auth_message_response,
       };
@@ -81,6 +82,7 @@ static void handle_response(struct response resp, int start_req) {
     case auth_message_type_error: {
       append_string(&gtkgreet->error,
                     resp.body.response_auth_message.auth_message);
+      gtkgreet_setup_question(gtkgreet);
       struct request req = {
           .request_type = request_type_post_auth_message_response,
       };
@@ -193,4 +195,16 @@ void action_cancel_question(GtkWidget *widget, gpointer data) {
   g_free(gtkgreet->info);
   gtkgreet->info = NULL;
   gtkgreet_setup_question(gtkgreet);
+}
+
+void action_poweroff(GtkWidget *widget, gpointer data) {
+  g_spawn_command_line_async("loginctl poweroff", NULL);
+}
+
+void action_reboot(GtkWidget *widget, gpointer data) {
+  g_spawn_command_line_async("loginctl reboot", NULL);
+}
+
+void action_suspend(GtkWidget *widget, gpointer data) {
+  g_spawn_command_line_async("loginctl suspend", NULL);
 }

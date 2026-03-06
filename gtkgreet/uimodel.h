@@ -7,9 +7,6 @@
 struct UiModel {
   char *readCommand;
   char *submit;
-  char *cancel;
-  char *errorPrompt;
-  char *infoPrompt;
   char *initialAnswer;
   char *pamPromptAnswer;
 
@@ -17,6 +14,10 @@ struct UiModel {
   char *poweroff;
   char *suspend;
   char *reboot;
+  char *cancel;
+  char *errorPrompt;
+  char *infoPrompt;
+  char *questionPrompt;
 
   GPtrArray *initial_state;
   GPtrArray *pam_state;
