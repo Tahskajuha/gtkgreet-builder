@@ -72,6 +72,22 @@ static void set_text(GtkWidget *w, const char *text) {
   }
 }
 
+static GtkWidget *find_first_editable(GtkWidget *widget) {
+  if (!gtk_widget_get_visible(widget))
+    return NULL;
+  if (GTK_IS_EDITABLE(widget))
+    return widget;
+
+  for (GtkWidget *child = gtk_widget_get_first_child(widget); child;
+       child = gtk_widget_get_next_sibling(child)) {
+    GtkWidget *result = find_first_editable(child);
+    if (result)
+      return result;
+  }
+
+  return NULL;
+}
+
 void window_setup_question(struct Window *ctx, enum QuestionType type,
                            char *question, char *error, char *info) {
   hide_all_widgets(ctx);
@@ -133,7 +149,13 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
       gtk_widget_set_visible(i, TRUE);
     }
   }
+
   gtk_window_present(GTK_WINDOW(ctx->window));
+
+  GtkWidget *editable = find_first_editable(ctx->window);
+  if (editable) {
+    gtk_widget_grab_focus(editable);
+  }
 }
 
 void window_empty(struct Window *ctx) {}

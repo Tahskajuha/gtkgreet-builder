@@ -19,9 +19,14 @@ static gboolean is_duplicate(const char *str) {
   return FALSE;
 }
 
-static void widget_exists(GtkBuilder *builder, const char *str) {
-  if (!gtk_builder_get_object(builder, str))
+static void is_readable_widget(GtkBuilder *builder, const char *str) {
+  GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(builder, str));
+  if (!w) {
     g_error("Layout file does not contain required %s object", str);
+  } else if (!GTK_IS_EDITABLE(w) && !GTK_IS_DROP_DOWN(w)) {
+    g_error("Invalid widget class for: %s (got %s)", str,
+            G_OBJECT_TYPE_NAME(w));
+  }
 }
 
 static char *get_string_from_file(GKeyFile *kf, const char *section,
@@ -58,8 +63,6 @@ static char **get_stringlist_from_file(GKeyFile *kf, const char *section,
 static gboolean is_auth_widget(const char *str) {
   if (g_strcmp0(uimodel->readCommand, str) == 0) {
     return TRUE;
-  } else if (g_strcmp0(uimodel->submit, str) == 0) {
-    return TRUE;
   } else if (g_strcmp0(uimodel->initialAnswer, str) == 0) {
     return TRUE;
   } else if (g_strcmp0(uimodel->pamPromptAnswer, str) == 0) {
@@ -87,11 +90,12 @@ static void attach_custom_layout(const char *path) {
             error ? error->message : "unknown error");
   }
   gtkgreet->window->builder = builder;
-  widget_exists(builder, "main_window");
-  widget_exists(builder, uimodel->readCommand);
-  widget_exists(builder, uimodel->submit);
-  widget_exists(builder, uimodel->initialAnswer);
-  widget_exists(builder, uimodel->pamPromptAnswer);
+  if (!gtk_builder_get_object(builder, "main_window")) {
+    g_error("Layout file does not contain required main_window object");
+  }
+  is_readable_widget(builder, uimodel->readCommand);
+  is_readable_widget(builder, uimodel->initialAnswer);
+  is_readable_widget(builder, uimodel->pamPromptAnswer);
   GtkWidget *window =
       GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
   gtkgreet->window->window = window;
@@ -143,37 +147,38 @@ void read_config(const char *config) {
   g_clear_error(&error);
 
   // Read auth widgets first
-  char *readCommand = get_string_from_file(kf, "auth", "readCommand", TRUE);
+  char *readCommand = get_string_from_file(kf, "core", "read_command", TRUE);
   uimodel->readCommand = readCommand;
-  char *submit = get_string_from_file(kf, "auth", "submit", TRUE);
-  uimodel->submit = submit;
-  char *initialAnswer = get_string_from_file(kf, "auth", "initialAnswer", TRUE);
+  char *initialAnswer =
+      get_string_from_file(kf, "core", "initial_answer", TRUE);
   uimodel->initialAnswer = initialAnswer;
   char *pamPromptAnswer =
-      get_string_from_file(kf, "auth", "pamPromptAnswer", TRUE);
+      get_string_from_file(kf, "core", "pam_prompt_answer", TRUE);
   uimodel->pamPromptAnswer = pamPromptAnswer;
 
   // Read non-essential widget IDs
   char *commandList =
-      get_string_from_file(kf, "behaviors", "commandList", FALSE);
+      get_string_from_file(kf, "optional", "command_list", FALSE);
   uimodel->commandList = commandList;
-  char *poweroff = get_string_from_file(kf, "behaviors", "poweroff", FALSE);
+  char *poweroff = get_string_from_file(kf, "optional", "poweroff", FALSE);
   uimodel->poweroff = poweroff;
-  char *suspend = get_string_from_file(kf, "behaviors", "suspend", FALSE);
+  char *suspend = get_string_from_file(kf, "optional", "suspend", FALSE);
   uimodel->suspend = suspend;
-  char *reboot = get_string_from_file(kf, "behaviors", "reboot", FALSE);
+  char *reboot = get_string_from_file(kf, "optional", "reboot", FALSE);
   uimodel->reboot = reboot;
-  char *hibernate = get_string_from_file(kf, "behaviors", "hibernate", FALSE);
+  char *hibernate = get_string_from_file(kf, "optional", "hibernate", FALSE);
   uimodel->hibernate = hibernate;
-  char *cancel = get_string_from_file(kf, "behaviors", "cancel", FALSE);
+  char *cancel = get_string_from_file(kf, "optional", "cancel", FALSE);
   uimodel->cancel = cancel;
+  char *submit = get_string_from_file(kf, "optional", "submit", FALSE);
+  uimodel->submit = submit;
   char *questionPrompt =
-      get_string_from_file(kf, "behaviors", "questionPrompt", FALSE);
+      get_string_from_file(kf, "optional", "question_prompt", FALSE);
   uimodel->questionPrompt = questionPrompt;
   char *errorPrompt =
-      get_string_from_file(kf, "behaviors", "errorPrompt", FALSE);
+      get_string_from_file(kf, "optional", "error_prompt", FALSE);
   uimodel->errorPrompt = errorPrompt;
-  char *infoPrompt = get_string_from_file(kf, "behaviors", "infoPrompt", FALSE);
+  char *infoPrompt = get_string_from_file(kf, "optional", "info_prompt", FALSE);
   uimodel->infoPrompt = infoPrompt;
 
   // Environments list

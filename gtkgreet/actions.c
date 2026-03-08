@@ -123,11 +123,9 @@ static void handle_response(struct response resp, int start_req) {
 }
 
 static char *get_text(GtkWidget *w) {
-  if (!w)
-    return NULL;
-  if (GTK_IS_EDITABLE(w))
+  if (GTK_IS_EDITABLE(w)) {
     return g_strdup(gtk_editable_get_text(GTK_EDITABLE(w)));
-  if (GTK_IS_DROP_DOWN(w)) {
+  } else if (GTK_IS_DROP_DOWN(w)) {
     GtkDropDown *dd = GTK_DROP_DOWN(w);
     GObject *item = gtk_drop_down_get_selected_item(dd);
     if (!item)

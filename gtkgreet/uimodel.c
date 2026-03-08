@@ -23,6 +23,18 @@ static void list_item_bind(GtkListItemFactory *factory, GtkListItem *item,
   gtk_label_set_text(GTK_LABEL(label), gtk_string_object_get_string(obj));
 }
 
+static gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval,
+                               guint keycode, GdkModifierType state,
+                               gpointer data) {
+  struct Window *ctx = data;
+  if ((keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter) &&
+      !(state & (GDK_CONTROL_MASK | GDK_ALT_MASK))) {
+    action_answer_question(NULL, ctx);
+    return TRUE;
+  }
+  return FALSE;
+}
+
 struct UiModel *create_uimodel() {
   uimodel = calloc(1, sizeof(struct UiModel));
   uimodel->initial_state = g_ptr_array_new_with_free_func(g_free);
@@ -31,9 +43,16 @@ struct UiModel *create_uimodel() {
 }
 
 void bind_widgets(struct Window *ctx) {
-  GtkWidget *submit =
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->submit));
-  g_signal_connect(submit, "clicked", G_CALLBACK(action_answer_question), ctx);
+  GtkEventController *key = gtk_event_controller_key_new();
+  g_signal_connect(key, "key-pressed", G_CALLBACK(on_key_pressed), ctx);
+  gtk_widget_add_controller(ctx->window, key);
+
+  if (uimodel->submit) {
+    GtkWidget *submit =
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->submit));
+    g_signal_connect(submit, "clicked", G_CALLBACK(action_answer_question),
+                     ctx);
+  }
 
   if (uimodel->cancel) {
     GtkWidget *cancel =
