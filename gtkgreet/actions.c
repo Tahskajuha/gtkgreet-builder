@@ -12,18 +12,6 @@
 #include "uimodel.h"
 #include "window.h"
 
-static void append_string(char **dest, const char *suffix) {
-  if (suffix == NULL)
-    return;
-  if (*dest == NULL) {
-    *dest = g_strdup(suffix);
-  } else {
-    char *tmp = g_strconcat(*dest, "\n", suffix, NULL);
-    g_free(*dest);
-    *dest = tmp;
-  }
-}
-
 static void handle_response(struct response resp, int start_req) {
   switch (resp.response_type) {
   case response_type_success: {
@@ -68,8 +56,8 @@ static void handle_response(struct response resp, int start_req) {
       break;
     }
     case auth_message_type_info: {
-      append_string(&gtkgreet->info,
-                    resp.body.response_auth_message.auth_message);
+      g_free(gtkgreet->info);
+      gtkgreet->info = g_strdup(resp.body.response_auth_message.auth_message);
       gtkgreet_setup_question(gtkgreet);
       struct request req = {
           .request_type = request_type_post_auth_message_response,
@@ -80,8 +68,8 @@ static void handle_response(struct response resp, int start_req) {
       break;
     }
     case auth_message_type_error: {
-      append_string(&gtkgreet->error,
-                    resp.body.response_auth_message.auth_message);
+      g_free(gtkgreet->error);
+      gtkgreet->error = g_strdup(resp.body.response_auth_message.auth_message);
       gtkgreet_setup_question(gtkgreet);
       struct request req = {
           .request_type = request_type_post_auth_message_response,

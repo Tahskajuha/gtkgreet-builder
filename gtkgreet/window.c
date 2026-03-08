@@ -61,14 +61,19 @@ static void hide_all_widgets(struct Window *ctx) {
   }
 }
 
-static void set_text(GtkWidget *w, const char *text) {
+static void update_text(GtkWidget *w, const char *text) {
   if (GTK_IS_LABEL(w)) {
     gtk_label_set_text(GTK_LABEL(w), text);
   } else if (GTK_IS_EDITABLE(w)) {
     gtk_editable_set_text(GTK_EDITABLE(w), text);
   } else if (GTK_IS_TEXT_VIEW(w)) {
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(w));
-    gtk_text_buffer_set_text(buffer, text, -1);
+    GtkTextIter end;
+    gtk_text_buffer_get_end_iter(buffer, &end);
+    gtk_text_buffer_insert(buffer, &end, text, -1);
+    gtk_text_buffer_insert(buffer, &end, "\n", 1);
+    gtk_text_buffer_get_end_iter(buffer, &end);
+    gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(w), &end, 0.0, FALSE, 0, 0);
   }
 }
 
@@ -129,7 +134,7 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
     GtkWidget *q = GTK_WIDGET(
         gtk_builder_get_object(ctx->builder, uimodel->questionPrompt));
     if (q) {
-      set_text(q, question);
+      update_text(q, question);
       gtk_widget_set_visible(q, TRUE);
     }
   }
@@ -137,7 +142,7 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
     GtkWidget *e =
         GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->errorPrompt));
     if (e) {
-      set_text(e, error);
+      update_text(e, error);
       gtk_widget_set_visible(e, TRUE);
     }
   }
@@ -145,7 +150,7 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
     GtkWidget *i =
         GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->infoPrompt));
     if (i) {
-      set_text(i, info);
+      update_text(i, info);
       gtk_widget_set_visible(i, TRUE);
     }
   }
