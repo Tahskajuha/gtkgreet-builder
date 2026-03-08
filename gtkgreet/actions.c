@@ -197,14 +197,45 @@ void action_cancel_question(GtkWidget *widget, gpointer data) {
   gtkgreet_setup_question(gtkgreet);
 }
 
-void action_poweroff(GtkWidget *widget, gpointer data) {
-  g_spawn_command_line_async("loginctl poweroff", NULL);
+static void power_action(const char *method) {
+  g_print("Action fired: %s", method);
+  GError *error = NULL;
+  GDBusConnection *conn = g_bus_get_sync(G_BUS_TYPE_SYSTEM, NULL, &error);
+  if (!conn) {
+    g_warning("Failed to get system bus: %s",
+              error ? error->message : "Unknown Error");
+    if (error)
+      g_error_free(error);
+
+    return;
+  }
+  GVariant *result = g_dbus_connection_call_sync(
+      conn, "org.freedesktop.login1", "/org/freedesktop/login1",
+      "org.freedesktop.login1.Manager", method, g_variant_new("(b)", FALSE),
+      NULL, G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
+
+  if (error) {
+    g_print("Error encountered while calling DBus: %s", error->message);
+  }
+  g_error_free(error);
+
+  if (result) {
+    g_print("Recieved result");
+  }
+
+  g_object_unref(conn);
 }
 
-void action_reboot(GtkWidget *widget, gpointer data) {
-  g_spawn_command_line_async("loginctl reboot", NULL);
+void action_poweroff(GtkWidget *widget, gpointer data) {
+  power_action("PowerOff");
 }
+
+void action_reboot(GtkWidget *widget, gpointer data) { power_action("Reboot"); }
 
 void action_suspend(GtkWidget *widget, gpointer data) {
-  g_spawn_command_line_async("loginctl suspend", NULL);
+  power_action("Suspend");
+}
+
+void action_hibernate(GtkWidget *widget, gpointer data) {
+  power_action("Hibernate");
 }

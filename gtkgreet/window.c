@@ -54,7 +54,6 @@ static void hide_all_widgets(struct Window *ctx) {
   }
   for (guint i = 0; i < uimodel->pam_state->len; i++) {
     char *id = g_ptr_array_index(uimodel->pam_state, i);
-    g_print("Hiding %s", id);
     GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(ctx->builder, id));
     if (w) {
       gtk_widget_set_visible(w, FALSE);

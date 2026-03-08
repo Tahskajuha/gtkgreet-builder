@@ -8,5 +8,6 @@ void action_cancel_question(GtkWidget *widget, gpointer data);
 void action_poweroff(GtkWidget *widget, gpointer data);
 void action_reboot(GtkWidget *widget, gpointer data);
 void action_suspend(GtkWidget *widget, gpointer data);
+void action_hibernate(GtkWidget *widget, gpointer data);
 
 #endif
