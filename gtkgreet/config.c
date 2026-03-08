@@ -23,7 +23,8 @@ static void is_readable_widget(GtkBuilder *builder, const char *str) {
   GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(builder, str));
   if (!w) {
     g_error("Layout file does not contain required %s object", str);
-  } else if (!GTK_IS_EDITABLE(w) && !GTK_IS_DROP_DOWN(w)) {
+  } else if (!GTK_IS_EDITABLE(w) && !GTK_IS_DROP_DOWN(w) &&
+             !GTK_IS_LIST_VIEW(w)) {
     g_error("Invalid widget class for: %s (got %s)", str,
             G_OBJECT_TYPE_NAME(w));
   }
