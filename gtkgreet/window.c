@@ -38,8 +38,6 @@ static void hide_all_widgets(struct Window *ctx) {
       GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->readCommand)),
       FALSE);
   gtk_widget_set_visible(
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->submit)), FALSE);
-  gtk_widget_set_visible(
       GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->initialAnswer)),
       FALSE);
   gtk_widget_set_visible(GTK_WIDGET(gtk_builder_get_object(
@@ -97,8 +95,6 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
                            char *question, char *error, char *info) {
   hide_all_widgets(ctx);
 
-  gtk_widget_set_visible(
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->submit)), TRUE);
   switch (type) {
   case QuestionTypeInitial: {
     gtk_widget_set_visible(
@@ -130,12 +126,13 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
     break;
   }
   }
-  if (question && uimodel->questionPrompt) {
-    GtkWidget *q = GTK_WIDGET(
-        gtk_builder_get_object(ctx->builder, uimodel->questionPrompt));
-    if (q) {
-      update_text(q, question);
-      gtk_widget_set_visible(q, TRUE);
+
+  if (info && uimodel->infoPrompt) {
+    GtkWidget *i =
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->infoPrompt));
+    if (i) {
+      update_text(i, info);
+      gtk_widget_set_visible(i, TRUE);
     }
   }
   if (error && uimodel->errorPrompt) {
@@ -146,12 +143,12 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
       gtk_widget_set_visible(e, TRUE);
     }
   }
-  if (info && uimodel->infoPrompt) {
-    GtkWidget *i =
-        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->infoPrompt));
-    if (i) {
-      update_text(i, info);
-      gtk_widget_set_visible(i, TRUE);
+  if (question && uimodel->questionPrompt) {
+    GtkWidget *q = GTK_WIDGET(
+        gtk_builder_get_object(ctx->builder, uimodel->questionPrompt));
+    if (q) {
+      update_text(q, question);
+      gtk_widget_set_visible(q, TRUE);
     }
   }
 

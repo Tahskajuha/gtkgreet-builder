@@ -119,8 +119,48 @@ static char *get_text(GtkWidget *w) {
     if (!item)
       return NULL;
     return g_strdup(gtk_string_object_get_string(GTK_STRING_OBJECT(item)));
+  } else if (GTK_IS_LIST_VIEW(w)) {
+    GtkSingleSelection *sel =
+        GTK_SINGLE_SELECTION(gtk_list_view_get_model(GTK_LIST_VIEW(w)));
+    guint pos = gtk_single_selection_get_selected(sel);
+    if (pos != GTK_INVALID_LIST_POSITION) {
+      GtkStringObject *obj = GTK_STRING_OBJECT(
+          g_list_model_get_item(gtk_single_selection_get_model(sel), pos));
+      const char *str = gtk_string_object_get_string(obj);
+      g_object_unref(obj);
+      return g_strdup(str);
+    }
   }
   return NULL;
+}
+
+static void power_action(const char *method) {
+  g_print("Action fired: %s", method);
+  GError *error = NULL;
+  GDBusConnection *conn = g_bus_get_sync(G_BUS_TYPE_SYSTEM, NULL, &error);
+  if (!conn) {
+    g_warning("Failed to get system bus: %s",
+              error ? error->message : "Unknown Error");
+    if (error)
+      g_error_free(error);
+
+    return;
+  }
+  GVariant *result = g_dbus_connection_call_sync(
+      conn, "org.freedesktop.login1", "/org/freedesktop/login1",
+      "org.freedesktop.login1.Manager", method, g_variant_new("(b)", FALSE),
+      NULL, G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
+
+  if (error) {
+    g_print("Error encountered while calling DBus: %s", error->message);
+  }
+  g_error_free(error);
+
+  if (result) {
+    g_print("Recieved result");
+  }
+
+  g_object_unref(conn);
 }
 
 void action_answer_question(GtkWidget *widget, gpointer data) {
@@ -181,35 +221,6 @@ void action_cancel_question(GtkWidget *widget, gpointer data) {
   g_free(gtkgreet->info);
   gtkgreet->info = NULL;
   gtkgreet_setup_question(gtkgreet);
-}
-
-static void power_action(const char *method) {
-  g_print("Action fired: %s", method);
-  GError *error = NULL;
-  GDBusConnection *conn = g_bus_get_sync(G_BUS_TYPE_SYSTEM, NULL, &error);
-  if (!conn) {
-    g_warning("Failed to get system bus: %s",
-              error ? error->message : "Unknown Error");
-    if (error)
-      g_error_free(error);
-
-    return;
-  }
-  GVariant *result = g_dbus_connection_call_sync(
-      conn, "org.freedesktop.login1", "/org/freedesktop/login1",
-      "org.freedesktop.login1.Manager", method, g_variant_new("(b)", FALSE),
-      NULL, G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
-
-  if (error) {
-    g_print("Error encountered while calling DBus: %s", error->message);
-  }
-  g_error_free(error);
-
-  if (result) {
-    g_print("Recieved result");
-  }
-
-  g_object_unref(conn);
 }
 
 void action_poweroff(GtkWidget *widget, gpointer data) {
