@@ -35,44 +35,66 @@ void bind_widgets(struct Window *ctx) {
       GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->submit));
   g_signal_connect(submit, "clicked", G_CALLBACK(action_answer_question), ctx);
 
-  GtkWidget *cancel =
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->cancel));
-  if (cancel) {
-    g_signal_connect(cancel, "clicked", G_CALLBACK(action_cancel_question),
-                     ctx);
-  }
-  GtkWidget *commandList =
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->commandList));
-  if (commandList) {
-    if (GTK_IS_DROP_DOWN(commandList)) {
-      gtk_drop_down_set_model(GTK_DROP_DOWN(commandList),
-                              G_LIST_MODEL(gtkgreet->commandList));
-    } else if (GTK_IS_LIST_VIEW(commandList)) {
-      GtkSingleSelection *sel =
-          gtk_single_selection_new(G_LIST_MODEL(gtkgreet->commandList));
-      GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
-      g_signal_connect(factory, "setup", G_CALLBACK(list_item_setup), NULL);
-      g_signal_connect(factory, "bind", G_CALLBACK(list_item_bind), NULL);
-
-      gtk_list_view_set_model(GTK_LIST_VIEW(commandList),
-                              GTK_SELECTION_MODEL(sel));
-      gtk_list_view_set_factory(GTK_LIST_VIEW(commandList),
-                                GTK_LIST_ITEM_FACTORY(factory));
+  if (uimodel->cancel) {
+    GtkWidget *cancel =
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->cancel));
+    if (cancel) {
+      g_signal_connect(cancel, "clicked", G_CALLBACK(action_cancel_question),
+                       ctx);
     }
   }
-  GtkWidget *poweroff =
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->poweroff));
-  if (poweroff) {
-    g_signal_connect(poweroff, "clicked", G_CALLBACK(action_poweroff), ctx);
+
+  if (uimodel->commandList) {
+    GtkWidget *commandList =
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->commandList));
+    if (commandList) {
+      if (GTK_IS_DROP_DOWN(commandList)) {
+        gtk_drop_down_set_model(GTK_DROP_DOWN(commandList),
+                                G_LIST_MODEL(gtkgreet->commandList));
+      } else if (GTK_IS_LIST_VIEW(commandList)) {
+        GtkSingleSelection *sel =
+            gtk_single_selection_new(G_LIST_MODEL(gtkgreet->commandList));
+        GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
+        g_signal_connect(factory, "setup", G_CALLBACK(list_item_setup), NULL);
+        g_signal_connect(factory, "bind", G_CALLBACK(list_item_bind), NULL);
+
+        gtk_list_view_set_model(GTK_LIST_VIEW(commandList),
+                                GTK_SELECTION_MODEL(sel));
+        gtk_list_view_set_factory(GTK_LIST_VIEW(commandList),
+                                  GTK_LIST_ITEM_FACTORY(factory));
+      }
+    }
   }
-  GtkWidget *reboot =
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->reboot));
-  if (reboot) {
-    g_signal_connect(reboot, "clicked", G_CALLBACK(action_reboot), ctx);
+
+  if (uimodel->poweroff) {
+    GtkWidget *poweroff =
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->poweroff));
+    if (poweroff) {
+      g_signal_connect(poweroff, "clicked", G_CALLBACK(action_poweroff), ctx);
+    }
   }
-  GtkWidget *suspend =
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->suspend));
-  if (suspend) {
-    g_signal_connect(suspend, "clicked", G_CALLBACK(action_suspend), ctx);
+
+  if (uimodel->reboot) {
+    GtkWidget *reboot =
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->reboot));
+    if (reboot) {
+      g_signal_connect(reboot, "clicked", G_CALLBACK(action_reboot), ctx);
+    }
+  }
+
+  if (uimodel->suspend) {
+    GtkWidget *suspend =
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->suspend));
+    if (suspend) {
+      g_signal_connect(suspend, "clicked", G_CALLBACK(action_suspend), ctx);
+    }
+  }
+
+  if (uimodel->hibernate) {
+    GtkWidget *hibernate =
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->hibernate));
+    if (hibernate) {
+      g_signal_connect(hibernate, "clicked", G_CALLBACK(action_hibernate), ctx);
+    }
   }
 }

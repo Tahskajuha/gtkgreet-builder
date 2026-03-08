@@ -163,6 +163,8 @@ void read_config(const char *config) {
   uimodel->suspend = suspend;
   char *reboot = get_string_from_file(kf, "behaviors", "reboot", FALSE);
   uimodel->reboot = reboot;
+  char *hibernate = get_string_from_file(kf, "behaviors", "hibernate", FALSE);
+  uimodel->hibernate = hibernate;
   char *cancel = get_string_from_file(kf, "behaviors", "cancel", FALSE);
   uimodel->cancel = cancel;
   char *questionPrompt =

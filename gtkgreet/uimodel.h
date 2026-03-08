@@ -14,6 +14,7 @@ struct UiModel {
   char *poweroff;
   char *suspend;
   char *reboot;
+  char *hibernate;
   char *cancel;
   char *errorPrompt;
   char *infoPrompt;

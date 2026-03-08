@@ -109,23 +109,29 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
     break;
   }
   }
-  GtkWidget *q =
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->questionPrompt));
-  GtkWidget *e =
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->errorPrompt));
-  GtkWidget *i =
-      GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->infoPrompt));
-  if (question && q) {
-    set_text(q, question);
-    gtk_widget_set_visible(q, TRUE);
+  if (question && uimodel->questionPrompt) {
+    GtkWidget *q = GTK_WIDGET(
+        gtk_builder_get_object(ctx->builder, uimodel->questionPrompt));
+    if (q) {
+      set_text(q, question);
+      gtk_widget_set_visible(q, TRUE);
+    }
   }
-  if (error && e) {
-    set_text(e, error);
-    gtk_widget_set_visible(e, TRUE);
+  if (error && uimodel->errorPrompt) {
+    GtkWidget *e =
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->errorPrompt));
+    if (e) {
+      set_text(e, error);
+      gtk_widget_set_visible(e, TRUE);
+    }
   }
-  if (info && i) {
-    set_text(i, info);
-    gtk_widget_set_visible(i, TRUE);
+  if (info && uimodel->infoPrompt) {
+    GtkWidget *i =
+        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->infoPrompt));
+    if (i) {
+      set_text(i, info);
+      gtk_widget_set_visible(i, TRUE);
+    }
   }
   gtk_window_present(GTK_WINDOW(ctx->window));
 }
