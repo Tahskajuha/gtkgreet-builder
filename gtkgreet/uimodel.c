@@ -27,11 +27,18 @@ static gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval,
                                guint keycode, GdkModifierType state,
                                gpointer data) {
   struct Window *ctx = data;
+
   if ((keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter) &&
-      !(state & (GDK_CONTROL_MASK | GDK_ALT_MASK))) {
+      !(state & (GDK_CONTROL_MASK | GDK_ALT_MASK | GDK_SHIFT_MASK))) {
     action_answer_question(NULL, ctx);
     return TRUE;
   }
+
+  if (keyval == GDK_KEY_Escape) {
+    action_cancel_question(NULL, ctx);
+    return TRUE;
+  }
+
   return FALSE;
 }
 
@@ -44,6 +51,7 @@ struct UiModel *create_uimodel() {
 
 void bind_widgets(struct Window *ctx) {
   GtkEventController *key = gtk_event_controller_key_new();
+  gtk_event_controller_set_propagation_phase(key, GTK_PHASE_CAPTURE);
   g_signal_connect(key, "key-pressed", G_CALLBACK(on_key_pressed), ctx);
   gtk_widget_add_controller(ctx->window, key);
 
