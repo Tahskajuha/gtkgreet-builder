@@ -91,17 +91,22 @@ static void attach_custom_layout(const char *path) {
             error ? error->message : "unknown error");
   }
   gtkgreet->window->builder = builder;
-  if (!gtk_builder_get_object(builder, "main_window")) {
-    g_error("Layout file does not contain required main_window object");
-  }
+
   is_readable_widget(builder, uimodel->readCommand);
   is_readable_widget(builder, uimodel->initialAnswer);
   is_readable_widget(builder, uimodel->pamPromptAnswer);
-  GtkWidget *window =
-      GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
+
+  GtkWidget *root = GTK_WIDGET(gtk_builder_get_object(builder, "main_root"));
+  if (!root) {
+    g_error("Layout file does not contain required main_root object");
+  } else if (GTK_IS_WINDOW(root) || GTK_IS_POPOVER(root)) {
+    g_error("Invalid class for main_root object.");
+  }
+
+  GtkWidget *window = gtk_application_window_new(gtkgreet->app);
   gtkgreet->window->window = window;
 
-  gtk_window_set_application(GTK_WINDOW(window), gtkgreet->app);
+  gtk_window_set_child(GTK_WINDOW(window), root);
 
   bind_widgets(gtkgreet->window);
   g_signal_connect(gtkgreet->window->window, "destroy",

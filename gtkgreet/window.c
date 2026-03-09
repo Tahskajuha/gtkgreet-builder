@@ -160,7 +160,10 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
   }
 }
 
-void window_empty(struct Window *ctx) {}
+void window_empty(struct Window *ctx) {
+  // I don't know why I am still keeping this; might be useful if window
+  // teardown logic is needed later :P
+}
 
 struct Window *create_window(GdkMonitor *monitor) {
   struct Window *w = calloc(1, sizeof(struct Window));
