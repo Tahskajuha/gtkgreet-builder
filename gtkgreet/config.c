@@ -5,6 +5,8 @@
 
 #include "config.h"
 #include "gtkgreet.h"
+#include "uimodel.h"
+#include "window.h"
 
 static gboolean is_duplicate(const char *str) {
   guint length = g_list_model_get_n_items(G_LIST_MODEL(gtkgreet->commandList));
@@ -17,7 +19,101 @@ static gboolean is_duplicate(const char *str) {
   return FALSE;
 }
 
-void config_update_commands_model(gchar **commands, gsize commandsSize) {
+static void is_readable_widget(GtkBuilder *builder, const char *str) {
+  GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(builder, str));
+  if (!w) {
+    g_error("Layout file does not contain required %s object", str);
+  } else if (!GTK_IS_EDITABLE(w) && !GTK_IS_DROP_DOWN(w) &&
+             !GTK_IS_LIST_VIEW(w)) {
+    g_error("Invalid widget class for: %s (got %s)", str,
+            G_OBJECT_TYPE_NAME(w));
+  }
+}
+
+static char *get_string_from_file(GKeyFile *kf, const char *section,
+                                  const char *key, gboolean required) {
+  GError *error = NULL;
+  char *value = g_key_file_get_string(kf, section, key, &error);
+  if (value && *value) {
+    g_clear_error(&error);
+    return value;
+  } else if (required) {
+    g_error("Missing or invalid '%s' in section [%s]", key, section);
+  } else {
+    g_clear_error(&error);
+    return NULL;
+  }
+}
+
+static char **get_stringlist_from_file(GKeyFile *kf, const char *section,
+                                       const char *key, gsize *size,
+                                       gboolean required) {
+  GError *error = NULL;
+  char **value = g_key_file_get_string_list(kf, section, key, size, &error);
+  if (error != NULL && required) {
+    g_error("Missing or invalid '%s' in section [%s]", key, section);
+  } else if (error != NULL && !required) {
+    g_clear_error(&error);
+    return NULL;
+  } else {
+    g_clear_error(&error);
+    return value;
+  }
+}
+
+static gboolean is_auth_widget(const char *str) {
+  if (g_strcmp0(uimodel->readCommand, str) == 0) {
+    return TRUE;
+  } else if (g_strcmp0(uimodel->initialAnswer, str) == 0) {
+    return TRUE;
+  } else if (g_strcmp0(uimodel->pamPromptAnswer, str) == 0) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+static void attach_custom_style(const char *path) {
+  GtkCssProvider *provider = gtk_css_provider_new();
+
+  gtk_css_provider_load_from_path(provider, path);
+  gtk_style_context_add_provider_for_display(
+      gdk_display_get_default(), GTK_STYLE_PROVIDER(provider),
+      GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  g_object_unref(provider);
+}
+
+static void attach_custom_layout(const char *path) {
+  GtkBuilder *builder = gtk_builder_new();
+  GError *error = NULL;
+
+  if (!gtk_builder_add_from_file(builder, path, &error)) {
+    g_error("Failed to load layout file: %s",
+            error ? error->message : "unknown error");
+  }
+  gtkgreet->window->builder = builder;
+
+  is_readable_widget(builder, uimodel->readCommand);
+  is_readable_widget(builder, uimodel->initialAnswer);
+  is_readable_widget(builder, uimodel->pamPromptAnswer);
+
+  GtkWidget *root = GTK_WIDGET(gtk_builder_get_object(builder, "main_root"));
+  if (!root) {
+    g_error("Layout file does not contain required main_root object");
+  } else if (GTK_IS_WINDOW(root) || GTK_IS_POPOVER(root)) {
+    g_error("Invalid class for main_root object.");
+  }
+
+  GtkWidget *window = gtk_application_window_new(gtkgreet->app);
+  gtkgreet->window->window = window;
+
+  gtk_window_set_child(GTK_WINDOW(window), root);
+
+  bind_widgets(gtkgreet->window);
+  g_signal_connect(gtkgreet->window->window, "destroy",
+                   G_CALLBACK(window_empty), gtkgreet->window);
+}
+
+static void config_update_commands_model(gchar **commands, gsize commandsSize) {
   guint n = g_list_model_get_n_items(G_LIST_MODEL(gtkgreet->commandList));
   if (n > 0) {
     gtk_string_list_splice(gtkgreet->commandList, 0, n, NULL);
@@ -46,4 +142,91 @@ void config_update_commands_model(gchar **commands, gsize commandsSize) {
   }
 
   fclose(fp);
+}
+
+void read_config(const char *config) {
+  GKeyFile *kf = g_key_file_new();
+  GError *error = NULL;
+  if (!g_key_file_load_from_file(kf, config, G_KEY_FILE_NONE, &error)) {
+    g_error("Failed to load config: %s", error->message);
+  }
+  g_clear_error(&error);
+
+  // Read auth widgets first
+  char *readCommand = get_string_from_file(kf, "core", "read_command", TRUE);
+  uimodel->readCommand = readCommand;
+  char *initialAnswer =
+      get_string_from_file(kf, "core", "initial_answer", TRUE);
+  uimodel->initialAnswer = initialAnswer;
+  char *pamPromptAnswer =
+      get_string_from_file(kf, "core", "pam_prompt_answer", TRUE);
+  uimodel->pamPromptAnswer = pamPromptAnswer;
+
+  // Read non-essential widget IDs
+  char *commandList =
+      get_string_from_file(kf, "optional", "command_list", FALSE);
+  uimodel->commandList = commandList;
+  char *poweroff = get_string_from_file(kf, "optional", "poweroff", FALSE);
+  uimodel->poweroff = poweroff;
+  char *suspend = get_string_from_file(kf, "optional", "suspend", FALSE);
+  uimodel->suspend = suspend;
+  char *reboot = get_string_from_file(kf, "optional", "reboot", FALSE);
+  uimodel->reboot = reboot;
+  char *hibernate = get_string_from_file(kf, "optional", "hibernate", FALSE);
+  uimodel->hibernate = hibernate;
+  char *cancel = get_string_from_file(kf, "optional", "cancel", FALSE);
+  uimodel->cancel = cancel;
+  char *submit = get_string_from_file(kf, "optional", "submit", FALSE);
+  uimodel->submit = submit;
+  char *questionPrompt =
+      get_string_from_file(kf, "optional", "question_prompt", FALSE);
+  uimodel->questionPrompt = questionPrompt;
+  char *errorPrompt =
+      get_string_from_file(kf, "optional", "error_prompt", FALSE);
+  uimodel->errorPrompt = errorPrompt;
+  char *infoPrompt = get_string_from_file(kf, "optional", "info_prompt", FALSE);
+  uimodel->infoPrompt = infoPrompt;
+
+  // Environments list
+  gsize env_list_length = 0;
+  gchar **commands = get_stringlist_from_file(kf, "session", "environments",
+                                              &env_list_length, FALSE);
+  config_update_commands_model(commands, env_list_length);
+  g_strfreev(commands);
+
+  // List of widgets to be shown in initial state
+  gsize initial_state_list_length = 0;
+  gchar **initial_state_list = get_stringlist_from_file(
+      kf, "state.initial", "visible", &initial_state_list_length, FALSE);
+  for (gsize i = 0; i < initial_state_list_length; i++) {
+    if (is_auth_widget(initial_state_list[i])) {
+      continue;
+    }
+    g_ptr_array_add(uimodel->initial_state, g_strdup(initial_state_list[i]));
+  }
+  g_strfreev(initial_state_list);
+
+  // List of widgets to be shown in pam prompt state
+  gsize pam_state_list_length = 0;
+  gchar **pam_state_list = get_stringlist_from_file(
+      kf, "state.pam", "visible", &pam_state_list_length, FALSE);
+  for (gsize i = 0; i < pam_state_list_length; i++) {
+    if (is_auth_widget(pam_state_list[i])) {
+      continue;
+    }
+    g_ptr_array_add(uimodel->pam_state, g_strdup(pam_state_list[i]));
+  }
+  g_strfreev(pam_state_list);
+
+  // UI file path
+  char *layout = get_string_from_file(kf, "ui", "layout", TRUE);
+  attach_custom_layout(layout);
+  g_free(layout);
+
+  // Style file path
+  char *style = get_string_from_file(kf, "ui", "style", TRUE);
+  attach_custom_style(style);
+  g_free(style);
+
+  g_key_file_unref(kf);
 }

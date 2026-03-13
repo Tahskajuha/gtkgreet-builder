@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+
+	<!--
+	This layout file assumes that the image assets are installed to:
+
+	/usr/local/share/gtkgreet-builder/examples/minimal/assets/
+
+	If installed via a package manager, the path may instead be:
+
+	/usr/share/gtkgreet-builder/examples/minimal/assets/
+	-->
+   
+	<object class="GtkOverlay" id="main_root">
+		<property name="hexpand">true</property>
+		<property name="vexpand">true</property>
+
+		<child>
+			<object class="GtkPicture">
+				<!-- Background image by Kiwihug (https://unsplash.com/@kiwihug) -->
+				<property name="file">/usr/local/share/gtkgreet-builder/examples/minimal/assets/background.jpg</property>
+				<property name="content-fit">fill</property>
+			</object>
+		</child>
+
+		<child type="overlay">
+			<object class="GtkEntry" id="Answer">
+				<property name="name">answer</property>
+				<property name="xalign">0.5</property>
+				<property name="halign">center</property>
+				<property name="valign">center</property>
+				<!-- Set visibility="false" if the field should hide typed characters -->
+				<property name="visibility">true</property>
+				<property name="height-request">50</property>
+				<property name="width-request">640</property>
+				<property name="placeholder-text">Username/Password</property>
+			</object>
+		</child>
+
+		<child type="overlay">
+			<object class="GtkEntry" id="Command">
+				<property name="name">command</property>
+				<property name="xalign">0.5</property>
+				<property name="halign">center</property>
+				<property name="valign">end</property>
+				<property name="height-request">20</property>
+				<property name="width-request">320</property>
+				<property name="placeholder-text">Session Name</property>
+			</object>
+		</child>
+
+	</object>
+
+</interface>
