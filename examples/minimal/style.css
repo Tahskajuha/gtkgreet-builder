@@ -1,0 +1,17 @@
+/* Requires the "Dancing Script" font
+*  (e.g. ttf-impallari-dancing-script) */
+
+#command {
+	font-family: "Dancing Script", cursive;
+	font-size: 20px;
+	margin-bottom: 10px;
+	background: rgba(0,0,0,0);
+	outline: none;
+}
+
+#answer {
+	font-family: "Dancing Script", cursive;
+	font-size: 40px;
+	background: rgba(0,0,0,0);
+	outline: none;
+}

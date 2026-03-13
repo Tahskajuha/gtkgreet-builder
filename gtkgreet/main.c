@@ -68,17 +68,17 @@ static void activate(GtkApplication *app, gpointer user_data) {
   if (config != NULL) {
     read_config(config);
   } else {
-    g_error("A default fallback will be added soon");
+    g_error("Config not specified. A default fallback will be added soon");
   }
 
   gtkgreet_activate(gtkgreet);
 }
 
 int main(int argc, char **argv) {
-  setlocale(LC_ALL, "");
+  /* setlocale(LC_ALL, "");
   bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-  textdomain(GETTEXT_PACKAGE);
+  textdomain(GETTEXT_PACKAGE); */
 
   gtkgreet = create_gtkgreet();
   uimodel = create_uimodel();

@@ -1,4 +1,4 @@
-dependencies = [dependency('gtk4'), dependency('json-c')]
+dependencies = [dependency('gtk4', version: '>=4.20'), dependency('json-c')]
 
 gtk_layer_shell = dependency('gtk4-layer-shell-0', required: get_option('layershell'))
 if gtk_layer_shell.found()
@@ -7,7 +7,7 @@ if gtk_layer_shell.found()
 endif
 
 executable(
-		'gtkgreet',
+		'gtkgreet-builder',
 		[
 			'main.c',
 			'proto.c',

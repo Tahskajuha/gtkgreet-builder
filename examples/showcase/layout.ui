@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+
+	<!--
+	This layout file assumes that the image assets are installed to:
+
+	/usr/local/share/gtkgreet-builder/examples/showcase/assets/
+
+	If installed via a package manager, the path may instead be:
+
+	/usr/share/gtkgreet-builder/examples/showcase/assets/
+	-->
+   
+	<object class="GtkOverlay" id="main_root">
+		<property name="hexpand">true</property>
+		<property name="vexpand">true</property>
+
+		<child>
+			<object class="GtkPicture">
+				<!-- Background image by FabinhoSC (opengameart.org/users/fabinhosc) -->
+				<property name="file">/usr/local/share/gtkgreet-builder/examples/showcase/assets/background.png</property>
+				<property name="content-fit">fill</property>
+			</object>
+		</child>
+
+		<child type="overlay">
+			<object class="GtkScrolledWindow">
+				<property name="name">prompt-scroll</property>
+				<property name="height-request">450</property>
+				<property name="vexpand">false</property>
+				<property name="halign">center</property>
+				<property name="valign">start</property>
+				<property name="width-request">800</property>
+				<property name="hscrollbar-policy">never</property>
+				<property name="vscrollbar-policy">never</property>
+
+				<child>
+					<object class="GtkTextView" id="Prompt">
+						<property name="name">prompt</property>
+						<property name="valign">end</property>
+						<property name="wrap-mode">word-char</property>
+						<property name="editable">false</property>
+						<property name="cursor-visible">false</property>
+					</object>
+				</child>
+			</object>
+		</child>
+
+		<child type="overlay">
+			<object class="GtkBox">
+				<property name="orientation">vertical</property>
+				<property name="halign">center</property>
+				<property name="valign">center</property>
+
+				<child>
+					<object class="GtkOverlay">
+						<property name="name">answer</property>
+						<child type="overlay">
+							<object class="GtkEntry" id="InitialAnswer">
+								<property name="name">initial_answer</property>
+								<property name="halign">center</property>
+								<property name="valign">center</property>
+								<property name="height-request">40</property>
+								<property name="width-request">640</property>
+							</object>
+						</child>
+
+						<child type="overlay">
+							<object class="GtkEntry" id="PromptAnswer">
+								<property name="name">prompt_answer</property>
+								<property name="visibility">false</property>
+								<property name="halign">center</property>
+								<property name="valign">center</property>
+								<property name="height-request">40</property>
+								<property name="width-request">640</property>
+							</object>
+						</child>
+					</object>
+				</child>
+
+				<child>
+					<object class="GtkDropDown" id="Command">
+						<property name="name">command</property>
+						<property name="hexpand">false</property>
+						<property name="halign">center</property>
+						<property name="width-request">480</property>
+						<property name="height-request">30</property>
+					</object>
+				</child>
+
+				<child>
+					<object class="GtkOverlay">
+						<property name="width-request">660</property>
+
+						<child type="overlay">
+							<object class="GtkBox">
+								<property name="halign">end</property>
+
+								<child>
+									<object class="GtkButton" id="Cancel">
+										<property name="name">cancel</property>
+										<property name="icon-name">window-close-symbolic</property>
+										<property name="width-request">10</property>
+										<property name="height-request">10</property>
+	  								</object>
+								</child>
+
+								<child>
+									<object class="GtkButton" id="Submit">
+										<property name="name">submit</property>
+										<property name="icon-name">go-next-symbolic</property>
+										<property name="width-request">10</property>
+										<property name="height-request">10</property>
+									</object>
+								</child>
+							</object>
+						</child>
+					</object>
+				</child>
+			</object>
+		</child>
+
+		<child type="overlay">
+				
+			<object class="GtkBox">
+				<property name="name">power_buttons</property>
+				<property name="orientation">horizontal</property>
+				<property name="valign">end</property>
+				<property name="halign">end</property>
+
+				<child>
+					<object class="GtkButton" id="PowerOff">
+						<property name="name">poweroff</property>
+						<property name="has-frame">false</property>
+
+						<child>
+							<object class="GtkImage">
+								<property name="file">/usr/local/share/gtkgreet-builder/examples/showcase/assets/power.png</property>
+								<property name="pixel-size">32</property>
+							</object>
+						</child>
+					</object>
+				</child>
+
+				<child>
+					<object class="GtkButton" id="Reboot">
+						<property name="name">reboot</property>
+						<property name="has-frame">false</property>
+
+						<child>
+							<object class="GtkImage">
+								<property name="file">/usr/local/share/gtkgreet-builder/examples/showcase/assets/reboot.png</property>
+								<property name="pixel-size">32</property>
+							</object>
+						</child>
+					</object>
+				</child>
+
+				<child>
+					<object class="GtkButton" id="Suspend">
+						<property name="name">suspend</property>
+						<property name="has-frame">false</property>
+
+						<child>
+							<object class="GtkImage">
+								<property name="file">/usr/local/share/gtkgreet-builder/examples/showcase/assets/moon.png</property>
+								<property name="pixel-size">32</property>
+							</object>
+						</child>
+					</object>
+				</child>
+			</object>
+		</child>
+
+	</object>
+
+</interface>
