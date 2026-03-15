@@ -175,3 +175,7 @@ Power icons used in the full showcase example:
 
 - Bootstrap Icons
   https://icons.getbootstrap.com
+
+gtkgreet and greetd by Kenny Levinsen
+
+- https://github.com/kennylevinsen/
