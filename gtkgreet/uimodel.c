@@ -4,6 +4,7 @@
 #include <gtk/gtk.h>
 
 #include "actions.h"
+#include "fbWidgets.h"
 #include "gtkgreet.h"
 #include "uimodel.h"
 #include "window.h"
@@ -46,6 +47,10 @@ struct UiModel *create_uimodel() {
   uimodel = calloc(1, sizeof(struct UiModel));
   uimodel->initial_state = g_ptr_array_new_with_free_func(g_free);
   uimodel->pam_state = g_ptr_array_new_with_free_func(g_free);
+  uimodel->fbInitialPrompt = create_fbInitialPrompt();
+  uimodel->fbPamPromptAnswer = create_fbPamPromptAnswer();
+  uimodel->fbReadCommand = create_fbReadCommand();
+  uimodel->fbRoot = create_fbRoot();
   return uimodel;
 }
 

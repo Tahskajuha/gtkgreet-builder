@@ -6,7 +6,6 @@
 
 struct UiModel {
   char *readCommand;
-  char *submit;
   char *initialAnswer;
   char *pamPromptAnswer;
 
@@ -19,9 +18,15 @@ struct UiModel {
   char *errorPrompt;
   char *infoPrompt;
   char *questionPrompt;
+  char *submit;
 
   GPtrArray *initial_state;
   GPtrArray *pam_state;
+
+  GtkWidget *fbInitialPrompt;
+  GtkWidget *fbPamPromptAnswer;
+  GtkWidget *fbReadCommand;
+  GtkWidget *fbRoot;
 };
 
 extern struct UiModel *uimodel;

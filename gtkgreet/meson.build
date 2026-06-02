@@ -15,7 +15,8 @@ executable(
 			'actions.c',
 			'window.c',
 			'gtkgreet.c',
-                        'uimodel.c'
+                        'uimodel.c',
+                        'fbWidgets.c'
 		],
 		dependencies: dependencies,
 		install: true)
