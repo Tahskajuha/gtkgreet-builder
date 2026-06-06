@@ -3,7 +3,7 @@
 
 #include <gtk/gtk.h>
 
-GtkWidget *create_fbInitialPrompt();
+GtkWidget *create_fbInitialAnswer();
 GtkWidget *create_fbPamPromptAnswer();
 GtkWidget *create_fbReadCommand();
 GtkWidget *create_fbRoot();

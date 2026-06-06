@@ -4,7 +4,6 @@
 #include <gtk/gtk.h>
 
 #include "actions.h"
-#include "fbWidgets.h"
 #include "gtkgreet.h"
 #include "uimodel.h"
 #include "window.h"
@@ -47,86 +46,63 @@ struct UiModel *create_uimodel() {
   uimodel = calloc(1, sizeof(struct UiModel));
   uimodel->initial_state = g_ptr_array_new_with_free_func(g_free);
   uimodel->pam_state = g_ptr_array_new_with_free_func(g_free);
-  uimodel->fbInitialPrompt = create_fbInitialPrompt();
-  uimodel->fbPamPromptAnswer = create_fbPamPromptAnswer();
-  uimodel->fbReadCommand = create_fbReadCommand();
-  uimodel->fbRoot = create_fbRoot();
   return uimodel;
 }
 
-void bind_widgets(struct Window *ctx) {
+void bind_actions(struct Window *ctx) {
   GtkEventController *key = gtk_event_controller_key_new();
   gtk_event_controller_set_propagation_phase(key, GTK_PHASE_CAPTURE);
   g_signal_connect(key, "key-pressed", G_CALLBACK(on_key_pressed), ctx);
   gtk_widget_add_controller(ctx->window, key);
 
   if (uimodel->submit) {
-    GtkWidget *submit =
-        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->submit));
-    g_signal_connect(submit, "clicked", G_CALLBACK(action_answer_question),
-                     ctx);
+    g_signal_connect(uimodel->submit, "clicked",
+                     G_CALLBACK(action_answer_question), ctx);
   }
 
   if (uimodel->cancel) {
-    GtkWidget *cancel =
-        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->cancel));
-    if (cancel) {
-      g_signal_connect(cancel, "clicked", G_CALLBACK(action_cancel_question),
-                       ctx);
-    }
+    g_signal_connect(uimodel->cancel, "clicked",
+                     G_CALLBACK(action_cancel_question), ctx);
   }
 
   if (uimodel->commandList) {
-    GtkWidget *commandList =
-        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->commandList));
-    if (commandList) {
-      if (GTK_IS_DROP_DOWN(commandList)) {
-        gtk_drop_down_set_model(GTK_DROP_DOWN(commandList),
-                                G_LIST_MODEL(gtkgreet->commandList));
-      } else if (GTK_IS_LIST_VIEW(commandList)) {
-        GtkSingleSelection *sel =
-            gtk_single_selection_new(G_LIST_MODEL(gtkgreet->commandList));
-        GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
-        g_signal_connect(factory, "setup", G_CALLBACK(list_item_setup), NULL);
-        g_signal_connect(factory, "bind", G_CALLBACK(list_item_bind), NULL);
+    if (GTK_IS_DROP_DOWN(uimodel->commandList)) {
+      gtk_drop_down_set_model(GTK_DROP_DOWN(uimodel->commandList),
+                              G_LIST_MODEL(gtkgreet->commandList));
+    } else if (GTK_IS_LIST_VIEW(uimodel->commandList)) {
+      GtkSingleSelection *sel =
+          gtk_single_selection_new(G_LIST_MODEL(gtkgreet->commandList));
+      GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
+      g_signal_connect(factory, "setup", G_CALLBACK(list_item_setup), NULL);
+      g_signal_connect(factory, "bind", G_CALLBACK(list_item_bind), NULL);
 
-        gtk_list_view_set_model(GTK_LIST_VIEW(commandList),
-                                GTK_SELECTION_MODEL(sel));
-        gtk_list_view_set_factory(GTK_LIST_VIEW(commandList),
-                                  GTK_LIST_ITEM_FACTORY(factory));
-      }
+      gtk_list_view_set_model(GTK_LIST_VIEW(uimodel->commandList),
+                              GTK_SELECTION_MODEL(sel));
+      gtk_list_view_set_factory(GTK_LIST_VIEW(uimodel->commandList),
+                                GTK_LIST_ITEM_FACTORY(factory));
     }
   }
 
   if (uimodel->poweroff) {
-    GtkWidget *poweroff =
-        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->poweroff));
-    if (poweroff) {
-      g_signal_connect(poweroff, "clicked", G_CALLBACK(action_poweroff), ctx);
-    }
+    g_signal_connect(uimodel->poweroff, "clicked", G_CALLBACK(action_poweroff),
+                     ctx);
   }
 
   if (uimodel->reboot) {
-    GtkWidget *reboot =
-        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->reboot));
-    if (reboot) {
-      g_signal_connect(reboot, "clicked", G_CALLBACK(action_reboot), ctx);
-    }
+    g_signal_connect(uimodel->reboot, "clicked", G_CALLBACK(action_reboot),
+                     ctx);
   }
 
   if (uimodel->suspend) {
-    GtkWidget *suspend =
-        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->suspend));
-    if (suspend) {
-      g_signal_connect(suspend, "clicked", G_CALLBACK(action_suspend), ctx);
-    }
+    g_signal_connect(uimodel->suspend, "clicked", G_CALLBACK(action_suspend),
+                     ctx);
   }
 
   if (uimodel->hibernate) {
-    GtkWidget *hibernate =
-        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->hibernate));
-    if (hibernate) {
-      g_signal_connect(hibernate, "clicked", G_CALLBACK(action_hibernate), ctx);
-    }
+    g_signal_connect(uimodel->hibernate, "clicked",
+                     G_CALLBACK(action_hibernate), ctx);
   }
+
+  g_signal_connect(gtkgreet->window->window, "destroy",
+                   G_CALLBACK(window_empty), gtkgreet->window);
 }

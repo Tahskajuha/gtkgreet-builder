@@ -65,11 +65,7 @@ static void activate(GtkApplication *app, gpointer user_data) {
   if (!setup_layer_shell()) {
     gtkgreet->window = create_window(NULL);
   }
-  if (config != NULL) {
-    read_config(config);
-  } else {
-    g_error("Config not specified. A default fallback will be added soon");
-  }
+  resolve_config(config);
 
   gtkgreet_activate(gtkgreet);
 }

@@ -3,6 +3,13 @@
 
 #include <gtk/gtk.h>
 
-void read_config(const char *config);
+struct CriticalRoleIds {
+  char *root;
+  char *readCommand;
+  char *initialAnswer;
+  char *pamPromptAnswer;
+};
+
+void resolve_config(const char *config);
 
 #endif

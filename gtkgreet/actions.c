@@ -10,7 +10,6 @@
 #include "gtkgreet.h"
 #include "proto.h"
 #include "uimodel.h"
-#include "window.h"
 
 static void handle_response(struct response resp, int start_req) {
   switch (resp.response_type) {
@@ -164,21 +163,18 @@ static void power_action(const char *method) {
 }
 
 void action_answer_question(GtkWidget *widget, gpointer data) {
-  struct Window *ctx = data;
   switch (gtkgreet->question_type) {
   case QuestionTypeInitial: {
     if (gtkgreet->selected_command) {
       free(gtkgreet->selected_command);
       gtkgreet->selected_command = NULL;
     }
-    gtkgreet->selected_command = get_text(
-        GTK_WIDGET(gtk_builder_get_object(ctx->builder, uimodel->readCommand)));
+    gtkgreet->selected_command = get_text(uimodel->readCommand);
 
     struct request req = {
         .request_type = request_type_create_session,
     };
-    char *text = get_text(GTK_WIDGET(
-        gtk_builder_get_object(ctx->builder, uimodel->initialAnswer)));
+    char *text = get_text(uimodel->initialAnswer);
     if (text) {
       g_strlcpy(req.body.request_create_session.username, text,
                 sizeof(req.body.request_create_session.username));
@@ -191,8 +187,7 @@ void action_answer_question(GtkWidget *widget, gpointer data) {
     struct request req = {
         .request_type = request_type_post_auth_message_response,
     };
-    char *text = get_text(GTK_WIDGET(
-        gtk_builder_get_object(ctx->builder, uimodel->pamPromptAnswer)));
+    char *text = get_text(uimodel->pamPromptAnswer);
     if (text) {
       g_strlcpy(req.body.request_post_auth_message_response.response, text,
                 sizeof(req.body.request_post_auth_message_response.response));

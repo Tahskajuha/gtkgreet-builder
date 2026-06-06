@@ -3,7 +3,7 @@
 #include "fbWidgets.h"
 #include <gtk/gtk.h>
 
-GtkWidget *create_fbInitialPrompt() {
+GtkWidget *create_fbInitialAnswer() {
   GtkWidget *entry = gtk_entry_new();
   gtk_entry_set_placeholder_text(GTK_ENTRY(entry), "Username");
   return entry;
