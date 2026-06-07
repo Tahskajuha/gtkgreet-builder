@@ -34,9 +34,9 @@ void window_setup_layershell(struct Window *ctx) {
 #endif
 
 static void hide_all_widgets(struct Window *ctx) {
-  gtk_widget_set_visible(uimodel->readCommand, FALSE);
-  gtk_widget_set_visible(uimodel->initialAnswer, FALSE);
-  gtk_widget_set_visible(uimodel->pamPromptAnswer, FALSE);
+  gtk_widget_set_visible(uimodel->widgets[INITIAL_ANSWER].w, FALSE);
+  gtk_widget_set_visible(uimodel->widgets[READ_COMMAND].w, FALSE);
+  gtk_widget_set_visible(uimodel->widgets[PAM_PROMPT_ANSWER].w, FALSE);
   for (guint i = 0; i < uimodel->initial_state->len; i++) {
     char *id = g_ptr_array_index(uimodel->initial_state, i);
     GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(ctx->builder, id));
@@ -91,8 +91,8 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
 
   switch (type) {
   case QuestionTypeInitial: {
-    gtk_widget_set_visible(uimodel->readCommand, TRUE);
-    gtk_widget_set_visible(uimodel->initialAnswer, TRUE);
+    gtk_widget_set_visible(uimodel->widgets[READ_COMMAND].w, TRUE);
+    gtk_widget_set_visible(uimodel->widgets[INITIAL_ANSWER].w, TRUE);
     for (guint i = 0; i < uimodel->initial_state->len; i++) {
       char *id = g_ptr_array_index(uimodel->initial_state, i);
       GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(ctx->builder, id));
@@ -103,7 +103,7 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
     break;
   }
   case QuestionTypePamPrompt: {
-    gtk_widget_set_visible(uimodel->pamPromptAnswer, TRUE);
+    gtk_widget_set_visible(uimodel->widgets[PAM_PROMPT_ANSWER].w, TRUE);
     for (guint i = 0; i < uimodel->pam_state->len; i++) {
       char *id = g_ptr_array_index(uimodel->pam_state, i);
       GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(ctx->builder, id));
@@ -115,17 +115,17 @@ void window_setup_question(struct Window *ctx, enum QuestionType type,
   }
   }
 
-  if (info && uimodel->infoPrompt) {
-    update_text(uimodel->infoPrompt, info);
-    gtk_widget_set_visible(uimodel->infoPrompt, TRUE);
+  if (info && uimodel->widgets[INFO_PROMPT].w) {
+    update_text(uimodel->widgets[INFO_PROMPT].w, info);
+    gtk_widget_set_visible(uimodel->widgets[INFO_PROMPT].w, TRUE);
   }
-  if (error && uimodel->errorPrompt) {
-    update_text(uimodel->errorPrompt, error);
-    gtk_widget_set_visible(uimodel->errorPrompt, TRUE);
+  if (error && uimodel->widgets[ERROR_PROMPT].w) {
+    update_text(uimodel->widgets[ERROR_PROMPT].w, error);
+    gtk_widget_set_visible(uimodel->widgets[ERROR_PROMPT].w, TRUE);
   }
-  if (question && uimodel->questionPrompt) {
-    update_text(uimodel->questionPrompt, question);
-    gtk_widget_set_visible(uimodel->questionPrompt, TRUE);
+  if (question && uimodel->widgets[QUESTION_PROMPT].w) {
+    update_text(uimodel->widgets[QUESTION_PROMPT].w, question);
+    gtk_widget_set_visible(uimodel->widgets[QUESTION_PROMPT].w, TRUE);
   }
 
   gtk_window_present(GTK_WINDOW(ctx->window));

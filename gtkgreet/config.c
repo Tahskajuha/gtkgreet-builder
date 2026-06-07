@@ -24,43 +24,9 @@ static gboolean is_readable_widget(GtkWidget *w) {
   return GTK_IS_EDITABLE(w) || GTK_IS_DROP_DOWN(w) || GTK_IS_LIST_VIEW(w);
 }
 
-static GtkWidget *get_widget(const char *id, enum role role) {
-  GtkWidget *w = NULL;
-  if (id) {
-    w = GTK_WIDGET(gtk_builder_get_object(gtkgreet->window->builder, id));
-  }
-
-  switch (role) {
-  case INITIAL_ANSWER:
-    if (!w || !is_readable_widget(w)) {
-      w = create_fbInitialAnswer();
-    }
-    break;
-  case PAM_PROMPT_ANSWER:
-    if (!w || !is_readable_widget(w)) {
-      w = create_fbPamPromptAnswer();
-    }
-    break;
-  case READ_COMMAND:
-    if (!w || !is_readable_widget(w)) {
-      w = create_fbReadCommand();
-    }
-    break;
-  case COMMAND_LIST:
-  case POWEROFF:
-  case SUSPEND:
-  case REBOOT:
-  case HIBERNATE:
-  case CANCEL:
-  case ERROR_PROMPT:
-  case INFO_PROMPT:
-  case QUESTION_PROMPT:
-  case SUBMIT:
-    break;
-  default:
-    g_error("Invalid role in get_widget");
-  }
-  return w;
+static gboolean is_valid_root(GtkWidget *w) {
+  return GTK_IS_BOX(w) || GTK_IS_OVERLAY(w) || GTK_IS_STACK(w) ||
+         GTK_IS_FIXED(w) || GTK_IS_CENTER_BOX(w) || GTK_IS_PANED(w);
 }
 
 static char *get_string_from_file(GKeyFile *kf, const char *section,
@@ -158,12 +124,57 @@ static void critical_fallback() {
   gtk_box_append(GTK_BOX(root), readCommand);
 
   gtkgreet->window->window = window;
-  uimodel->root = root;
-  uimodel->initialAnswer = initialAnswer;
-  uimodel->pamPromptAnswer = pamPromptAnswer;
-  uimodel->readCommand = readCommand;
+  uimodel->root.w = root;
+  uimodel->widgets[INITIAL_ANSWER].w = initialAnswer;
+  uimodel->widgets[PAM_PROMPT_ANSWER].w = pamPromptAnswer;
+  uimodel->widgets[READ_COMMAND].w = readCommand;
 
   bind_actions(gtkgreet->window);
+}
+
+static void populate_uimodel(GKeyFile *kf) {
+  GtkWidget *fb = gtk_box_new(GTK_ORIENTATION_VERTICAL, 40);
+  gboolean fbUsed = false;
+  for (enum role r = INITIAL_ANSWER; r < ROLE_COUNT; r++) {
+    GtkWidget *w = NULL;
+    char *id = get_string_from_file(kf, uimodel->widgets[r].section,
+                                    uimodel->widgets[r].field);
+    if (id) {
+      w = GTK_WIDGET(gtk_builder_get_object(gtkgreet->window->builder, id));
+      g_free(id);
+    }
+    switch (r) {
+    case INITIAL_ANSWER:
+      if (!w || !is_readable_widget(w)) {
+        w = create_fbInitialAnswer();
+        gtk_box_append(GTK_BOX(fb), w);
+        fbUsed = true;
+      }
+      break;
+    case PAM_PROMPT_ANSWER:
+      if (!w || !is_readable_widget(w)) {
+        w = create_fbPamPromptAnswer();
+        gtk_box_append(GTK_BOX(fb), w);
+        fbUsed = true;
+      }
+      break;
+    case READ_COMMAND:
+      if (!w || !is_readable_widget(w)) {
+        w = create_fbReadCommand();
+        gtk_box_append(GTK_BOX(fb), w);
+        fbUsed = true;
+      }
+      break;
+    default:
+      break;
+    }
+    uimodel->widgets[r].w = w;
+  }
+  if (fbUsed) {
+    push_widget_into_root(GTK_BOX(fb));
+  } else {
+    g_object_unref(fb);
+  }
 }
 
 static int attach_custom_layout(const char *path) {
@@ -180,7 +191,7 @@ static int attach_custom_layout(const char *path) {
   }
 
   GtkWidget *root = GTK_WIDGET(gtk_builder_get_object(builder, "main_root"));
-  if (!root || GTK_IS_WINDOW(root) || GTK_IS_POPOVER(root)) {
+  if (!root || !is_valid_root(root)) {
     g_warning("Invalid or missing main_root object in layout file");
     g_object_unref(builder);
     critical_fallback();
@@ -191,7 +202,7 @@ static int attach_custom_layout(const char *path) {
   gtkgreet->window->builder = builder;
   gtkgreet->window->window = window;
   gtk_window_set_child(GTK_WINDOW(window), root);
-  uimodel->root = root;
+  uimodel->root.w = root;
   bind_actions(gtkgreet->window);
   g_clear_error(&error);
   return 0;
@@ -240,44 +251,7 @@ void resolve_config(const char *config) {
   attach_custom_style(style);
   g_free(style);
 
-  // Read auth widgets first
-  uimodel->initialAnswer = get_widget(critIDs.initialAnswer, INITIAL_ANSWER);
-  uimodel->pamPromptAnswer =
-      get_widget(critIDs.pamPromptAnswer, PAM_PROMPT_ANSWER);
-  uimodel->readCommand = get_widget(critIDs.readCommand, READ_COMMAND);
-
-  // Read non-essential widget IDs
-  char *commandListID = get_string_from_file(kf, "optional", "command_list");
-  uimodel->commandList = get_widget(commandListID, COMMAND_LIST);
-  g_free(commandListID);
-  char *powerOffID = get_string_from_file(kf, "optional", "poweroff");
-  uimodel->poweroff = get_widget(powerOffID, POWEROFF);
-  g_free(powerOffID);
-  char *suspendID = get_string_from_file(kf, "optional", "suspend");
-  uimodel->suspend = get_widget(suspendID, SUSPEND);
-  g_free(suspendID);
-  char *rebootID = get_string_from_file(kf, "optional", "reboot");
-  uimodel->reboot = get_widget(rebootID, REBOOT);
-  g_free(rebootID);
-  char *hibernateID = get_string_from_file(kf, "optional", "hibernate");
-  uimodel->hibernate = get_widget(hibernateID, HIBERNATE);
-  g_free(hibernateID);
-  char *cancelID = get_string_from_file(kf, "optional", "cancel");
-  uimodel->cancel = get_widget(cancelID, CANCEL);
-  g_free(cancelID);
-  char *errorPromptID = get_string_from_file(kf, "optional", "error_prompt");
-  uimodel->errorPrompt = get_widget(errorPromptID, ERROR_PROMPT);
-  g_free(errorPromptID);
-  char *infoPromptID = get_string_from_file(kf, "optional", "info_prompt");
-  uimodel->infoPrompt = get_widget(infoPromptID, INFO_PROMPT);
-  g_free(infoPromptID);
-  char *questionPromptID =
-      get_string_from_file(kf, "optional", "question_prompt");
-  uimodel->questionPrompt = get_widget(questionPromptID, QUESTION_PROMPT);
-  g_free(questionPromptID);
-  char *submitID = get_string_from_file(kf, "optional", "submit");
-  uimodel->submit = get_widget(submitID, SUBMIT);
-  g_free(submitID);
+  populate_uimodel(kf);
 
   // Environments list
   gsize env_list_length = 0;

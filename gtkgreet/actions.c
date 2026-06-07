@@ -169,12 +169,12 @@ void action_answer_question(GtkWidget *widget, gpointer data) {
       free(gtkgreet->selected_command);
       gtkgreet->selected_command = NULL;
     }
-    gtkgreet->selected_command = get_text(uimodel->readCommand);
+    gtkgreet->selected_command = get_text(uimodel->widgets[READ_COMMAND].w);
 
     struct request req = {
         .request_type = request_type_create_session,
     };
-    char *text = get_text(uimodel->initialAnswer);
+    char *text = get_text(uimodel->widgets[INITIAL_ANSWER].w);
     if (text) {
       g_strlcpy(req.body.request_create_session.username, text,
                 sizeof(req.body.request_create_session.username));
@@ -187,7 +187,7 @@ void action_answer_question(GtkWidget *widget, gpointer data) {
     struct request req = {
         .request_type = request_type_post_auth_message_response,
     };
-    char *text = get_text(uimodel->pamPromptAnswer);
+    char *text = get_text(uimodel->widgets[PAM_PROMPT_ANSWER].w);
     if (text) {
       g_strlcpy(req.body.request_post_auth_message_response.response, text,
                 sizeof(req.body.request_post_auth_message_response.response));

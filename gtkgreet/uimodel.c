@@ -42,8 +42,78 @@ static gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval,
   return FALSE;
 }
 
+static const Widget widget_template[ROLE_COUNT] = {
+    [INITIAL_ANSWER] =
+        {
+            .section = "core",
+            .field = "initial_answer",
+        },
+    [PAM_PROMPT_ANSWER] =
+        {
+            .section = "core",
+            .field = "pam_prompt_answer",
+        },
+    [READ_COMMAND] =
+        {
+            .section = "core",
+            .field = "read_command",
+        },
+    [COMMAND_LIST] =
+        {
+            .section = "optional",
+            .field = "command_list",
+        },
+    [POWEROFF] =
+        {
+            .section = "optional",
+            .field = "poweroff",
+        },
+    [SUSPEND] =
+        {
+            .section = "optional",
+            .field = "suspend",
+        },
+    [REBOOT] =
+        {
+            .section = "optional",
+            .field = "reboot",
+        },
+    [HIBERNATE] =
+        {
+            .section = "optional",
+            .field = "hibernate",
+        },
+    [CANCEL] =
+        {
+            .section = "optional",
+            .field = "cancel",
+        },
+    [ERROR_PROMPT] =
+        {
+            .section = "optional",
+            .field = "error_prompt",
+        },
+    [INFO_PROMPT] =
+        {
+            .section = "optional",
+            .field = "info_prompt",
+        },
+    [QUESTION_PROMPT] =
+        {
+            .section = "optional",
+            .field = "question_prompt",
+        },
+    [SUBMIT] =
+        {
+            .section = "optional",
+            .field = "submit",
+        },
+};
+
 struct UiModel *create_uimodel() {
   uimodel = calloc(1, sizeof(struct UiModel));
+  uimodel->widgets = calloc(ROLE_COUNT, sizeof(Widget));
+  memcpy(uimodel->widgets, widget_template, sizeof(widget_template));
   uimodel->initial_state = g_ptr_array_new_with_free_func(g_free);
   uimodel->pam_state = g_ptr_array_new_with_free_func(g_free);
   return uimodel;
@@ -55,51 +125,51 @@ void bind_actions(struct Window *ctx) {
   g_signal_connect(key, "key-pressed", G_CALLBACK(on_key_pressed), ctx);
   gtk_widget_add_controller(ctx->window, key);
 
-  if (uimodel->submit) {
-    g_signal_connect(uimodel->submit, "clicked",
+  if (uimodel->widgets[SUBMIT].w) {
+    g_signal_connect(uimodel->widgets[SUBMIT].w, "clicked",
                      G_CALLBACK(action_answer_question), ctx);
   }
 
-  if (uimodel->cancel) {
-    g_signal_connect(uimodel->cancel, "clicked",
+  if (uimodel->widgets[CANCEL].w) {
+    g_signal_connect(uimodel->widgets[CANCEL].w, "clicked",
                      G_CALLBACK(action_cancel_question), ctx);
   }
 
-  if (uimodel->commandList) {
-    if (GTK_IS_DROP_DOWN(uimodel->commandList)) {
-      gtk_drop_down_set_model(GTK_DROP_DOWN(uimodel->commandList),
+  if (uimodel->widgets[COMMAND_LIST].w) {
+    if (GTK_IS_DROP_DOWN(uimodel->widgets[COMMAND_LIST].w)) {
+      gtk_drop_down_set_model(GTK_DROP_DOWN(uimodel->widgets[COMMAND_LIST].w),
                               G_LIST_MODEL(gtkgreet->commandList));
-    } else if (GTK_IS_LIST_VIEW(uimodel->commandList)) {
+    } else if (GTK_IS_LIST_VIEW(uimodel->widgets[COMMAND_LIST].w)) {
       GtkSingleSelection *sel =
           gtk_single_selection_new(G_LIST_MODEL(gtkgreet->commandList));
       GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
       g_signal_connect(factory, "setup", G_CALLBACK(list_item_setup), NULL);
       g_signal_connect(factory, "bind", G_CALLBACK(list_item_bind), NULL);
 
-      gtk_list_view_set_model(GTK_LIST_VIEW(uimodel->commandList),
+      gtk_list_view_set_model(GTK_LIST_VIEW(uimodel->widgets[COMMAND_LIST].w),
                               GTK_SELECTION_MODEL(sel));
-      gtk_list_view_set_factory(GTK_LIST_VIEW(uimodel->commandList),
+      gtk_list_view_set_factory(GTK_LIST_VIEW(uimodel->widgets[COMMAND_LIST].w),
                                 GTK_LIST_ITEM_FACTORY(factory));
     }
   }
 
-  if (uimodel->poweroff) {
-    g_signal_connect(uimodel->poweroff, "clicked", G_CALLBACK(action_poweroff),
-                     ctx);
+  if (uimodel->widgets[POWEROFF].w) {
+    g_signal_connect(uimodel->widgets[POWEROFF].w, "clicked",
+                     G_CALLBACK(action_poweroff), ctx);
   }
 
-  if (uimodel->reboot) {
-    g_signal_connect(uimodel->reboot, "clicked", G_CALLBACK(action_reboot),
-                     ctx);
+  if (uimodel->widgets[REBOOT].w) {
+    g_signal_connect(uimodel->widgets[REBOOT].w, "clicked",
+                     G_CALLBACK(action_reboot), ctx);
   }
 
-  if (uimodel->suspend) {
-    g_signal_connect(uimodel->suspend, "clicked", G_CALLBACK(action_suspend),
-                     ctx);
+  if (uimodel->widgets[SUSPEND].w) {
+    g_signal_connect(uimodel->widgets[SUSPEND].w, "clicked",
+                     G_CALLBACK(action_suspend), ctx);
   }
 
-  if (uimodel->hibernate) {
-    g_signal_connect(uimodel->hibernate, "clicked",
+  if (uimodel->widgets[HIBERNATE].w) {
+    g_signal_connect(uimodel->widgets[HIBERNATE].w, "clicked",
                      G_CALLBACK(action_hibernate), ctx);
   }
 

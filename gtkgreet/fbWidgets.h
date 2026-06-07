@@ -7,5 +7,6 @@ GtkWidget *create_fbInitialAnswer();
 GtkWidget *create_fbPamPromptAnswer();
 GtkWidget *create_fbReadCommand();
 GtkWidget *create_fbRoot();
+void push_widget_into_root(GtkBox *w);
 
 #endif
