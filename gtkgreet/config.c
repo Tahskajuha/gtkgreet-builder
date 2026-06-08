@@ -25,8 +25,9 @@ static gboolean is_readable_widget(GtkWidget *w) {
 }
 
 static gboolean is_valid_root(GtkWidget *w) {
-  return GTK_IS_BOX(w) || GTK_IS_OVERLAY(w) || GTK_IS_STACK(w) ||
-         GTK_IS_FIXED(w) || GTK_IS_CENTER_BOX(w) || GTK_IS_PANED(w);
+  return GTK_IS_BOX(w) || GTK_IS_GRID(w) || GTK_IS_OVERLAY(w) ||
+         GTK_IS_STACK(w) || GTK_IS_FIXED(w) || GTK_IS_CENTER_BOX(w) ||
+         GTK_IS_PANED(w);
 }
 
 static char *get_string_from_file(GKeyFile *kf, const char *section,
