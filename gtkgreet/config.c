@@ -204,7 +204,6 @@ static int attach_custom_layout(const char *path) {
   gtkgreet->window->window = window;
   gtk_window_set_child(GTK_WINDOW(window), root);
   uimodel->root.w = root;
-  bind_actions(gtkgreet->window);
   g_clear_error(&error);
   return 0;
 }
@@ -253,6 +252,7 @@ void resolve_config(const char *config) {
   g_free(style);
 
   populate_uimodel(kf);
+  bind_actions(gtkgreet->window);
 
   // Environments list
   gsize env_list_length = 0;

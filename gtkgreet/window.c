@@ -10,9 +10,9 @@
 #include "uimodel.h"
 #include "window.h"
 
-#include <gtk4-layer-shell.h>
-
 #ifdef LAYER_SHELL
+
+#include <gtk4-layer-shell.h>
 
 void window_setup_layershell(struct Window *ctx) {
   GtkEventController *motion = gtk_event_controller_motion_new();
