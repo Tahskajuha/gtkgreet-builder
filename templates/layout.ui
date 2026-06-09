@@ -3,12 +3,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
    
-	<!-- Root container required by gtkgreet-builder.
-	Do not remove or rename.
-	Change the class to suit your needs :) -->
-	<object class="GtkBox" id="main_root">
-		<!-- Add your widgets here -->
-
-	</object>
+	<!-- Add your widgets here.
+	Make sure that the widgets are inside your defined
+	root container if you want them to be visible :) -->
 
 </interface>

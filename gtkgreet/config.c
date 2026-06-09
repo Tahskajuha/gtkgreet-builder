@@ -125,7 +125,7 @@ static void critical_fallback() {
   gtk_box_append(GTK_BOX(root), readCommand);
 
   gtkgreet->window->window = window;
-  uimodel->root.w = root;
+  uimodel->widgets[ROOT].w = root;
   uimodel->widgets[INITIAL_ANSWER].w = initialAnswer;
   uimodel->widgets[PAM_PROMPT_ANSWER].w = pamPromptAnswer;
   uimodel->widgets[READ_COMMAND].w = readCommand;
@@ -133,10 +133,11 @@ static void critical_fallback() {
   bind_actions(gtkgreet->window);
 }
 
-static void populate_uimodel(GKeyFile *kf) {
+static int populate_uimodel(GKeyFile *kf) {
   GtkWidget *fb = gtk_box_new(GTK_ORIENTATION_VERTICAL, 40);
+  g_object_ref_sink(fb);
   gboolean fbUsed = false;
-  for (enum role r = INITIAL_ANSWER; r < ROLE_COUNT; r++) {
+  for (enum role r = ROOT; r < ROLE_COUNT; r++) {
     GtkWidget *w = NULL;
     char *id = get_string_from_file(kf, uimodel->widgets[r].section,
                                     uimodel->widgets[r].field);
@@ -145,8 +146,17 @@ static void populate_uimodel(GKeyFile *kf) {
       g_free(id);
     }
     switch (r) {
+    case ROOT:
+      if (!w || !is_valid_root(w)) {
+        critical_fallback();
+        return -1;
+      }
+      gtk_window_set_child(GTK_WINDOW(gtkgreet->window->window), w);
+      break;
     case INITIAL_ANSWER:
       if (!w || !is_readable_widget(w)) {
+        if (w)
+          gtk_widget_set_visible(w, FALSE);
         w = create_fbInitialAnswer();
         gtk_box_append(GTK_BOX(fb), w);
         fbUsed = true;
@@ -154,6 +164,8 @@ static void populate_uimodel(GKeyFile *kf) {
       break;
     case PAM_PROMPT_ANSWER:
       if (!w || !is_readable_widget(w)) {
+        if (w)
+          gtk_widget_set_visible(w, FALSE);
         w = create_fbPamPromptAnswer();
         gtk_box_append(GTK_BOX(fb), w);
         fbUsed = true;
@@ -161,6 +173,8 @@ static void populate_uimodel(GKeyFile *kf) {
       break;
     case READ_COMMAND:
       if (!w || !is_readable_widget(w)) {
+        if (w)
+          gtk_widget_set_visible(w, FALSE);
         w = create_fbReadCommand();
         gtk_box_append(GTK_BOX(fb), w);
         fbUsed = true;
@@ -176,6 +190,7 @@ static void populate_uimodel(GKeyFile *kf) {
   } else {
     g_object_unref(fb);
   }
+  return 0;
 }
 
 static int attach_custom_layout(const char *path) {
@@ -191,19 +206,9 @@ static int attach_custom_layout(const char *path) {
     return -1;
   }
 
-  GtkWidget *root = GTK_WIDGET(gtk_builder_get_object(builder, "main_root"));
-  if (!root || !is_valid_root(root)) {
-    g_warning("Invalid or missing main_root object in layout file");
-    g_object_unref(builder);
-    critical_fallback();
-    return -1;
-  }
-
   GtkWidget *window = gtk_application_window_new(gtkgreet->app);
   gtkgreet->window->builder = builder;
   gtkgreet->window->window = window;
-  gtk_window_set_child(GTK_WINDOW(window), root);
-  uimodel->root.w = root;
   g_clear_error(&error);
   return 0;
 }
@@ -241,9 +246,10 @@ void resolve_config(const char *config) {
   attach_custom_style(style);
   g_free(style);
 
-  populate_uimodel(kf);
-
-  bind_actions(gtkgreet->window);
+  if (populate_uimodel(kf) != 0) {
+    g_key_file_unref(kf);
+    return;
+  }
 
   // Environments list
   gsize env_list_length = 0;
@@ -252,8 +258,10 @@ void resolve_config(const char *config) {
   config_update_commands_model(commands, env_list_length);
   g_strfreev(commands);
 
+  bind_actions(gtkgreet->window);
+
   struct CriticalRoleIds critIDs = (struct CriticalRoleIds){
-      .root = "main_root",
+      .root = get_string_from_file(kf, "core", "root"),
       .readCommand = get_string_from_file(kf, "core", "read_command"),
       .initialAnswer = get_string_from_file(kf, "core", "initial_answer"),
       .pamPromptAnswer = get_string_from_file(kf, "core", "pam_prompt_answer")};
@@ -282,6 +290,7 @@ void resolve_config(const char *config) {
   }
   g_strfreev(pam_state_list);
 
+  g_free(critIDs.root);
   g_free(critIDs.readCommand);
   g_free(critIDs.initialAnswer);
   g_free(critIDs.pamPromptAnswer);

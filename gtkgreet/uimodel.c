@@ -43,6 +43,11 @@ static gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval,
 }
 
 static const Widget widget_template[ROLE_COUNT] = {
+    [ROOT] =
+        {
+            .section = "core",
+            .field = "root",
+        },
     [INITIAL_ANSWER] =
         {
             .section = "core",

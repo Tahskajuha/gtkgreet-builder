@@ -5,7 +5,8 @@
 #include <window.h>
 
 enum role {
-  INITIAL_ANSWER = 0,
+  ROOT = 0,
+  INITIAL_ANSWER,
   PAM_PROMPT_ANSWER,
   READ_COMMAND,
   COMMAND_LIST,
@@ -29,8 +30,6 @@ typedef struct {
 } Widget;
 
 struct UiModel {
-  Widget root;
-
   Widget *widgets;
 
   GPtrArray *initial_state;
