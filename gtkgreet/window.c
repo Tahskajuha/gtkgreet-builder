@@ -10,7 +10,7 @@
 #include "uimodel.h"
 #include "window.h"
 
-#ifdef LAYER_SHELL
+/* #ifdef LAYER_SHELL
 
 #include <gtk4-layer-shell.h>
 
@@ -31,7 +31,7 @@ void window_setup_layershell(struct Window *ctx) {
                        TRUE);
 }
 
-#endif
+#endif */
 
 static void hide_all_widgets(struct Window *ctx) {
   gtk_widget_set_visible(uimodel->widgets[INITIAL_ANSWER].w, FALSE);

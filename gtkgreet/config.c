@@ -226,20 +226,10 @@ void resolve_config(const char *config) {
   }
   g_clear_error(&error);
 
-  struct CriticalRoleIds critIDs = (struct CriticalRoleIds){
-      .root = "main_root",
-      .readCommand = get_string_from_file(kf, "core", "read_command"),
-      .initialAnswer = get_string_from_file(kf, "core", "initial_answer"),
-      .pamPromptAnswer = get_string_from_file(kf, "core", "pam_prompt_answer")};
-
   // UI file path
   char *layout = get_string_from_file(kf, "ui", "layout");
   if (attach_custom_layout(layout) != 0) {
     g_free(layout);
-
-    g_free(critIDs.readCommand);
-    g_free(critIDs.initialAnswer);
-    g_free(critIDs.pamPromptAnswer);
 
     g_key_file_unref(kf);
     return;
@@ -252,6 +242,7 @@ void resolve_config(const char *config) {
   g_free(style);
 
   populate_uimodel(kf);
+
   bind_actions(gtkgreet->window);
 
   // Environments list
@@ -260,6 +251,12 @@ void resolve_config(const char *config) {
       get_stringlist_from_file(kf, "session", "environments", &env_list_length);
   config_update_commands_model(commands, env_list_length);
   g_strfreev(commands);
+
+  struct CriticalRoleIds critIDs = (struct CriticalRoleIds){
+      .root = "main_root",
+      .readCommand = get_string_from_file(kf, "core", "read_command"),
+      .initialAnswer = get_string_from_file(kf, "core", "initial_answer"),
+      .pamPromptAnswer = get_string_from_file(kf, "core", "pam_prompt_answer")};
 
   // List of widgets to be shown in initial state
   gsize initial_state_list_length = 0;

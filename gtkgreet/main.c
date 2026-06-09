@@ -22,15 +22,15 @@ static gboolean use_layer_shell = FALSE;
 
 static GOptionEntry entries[] = {
 
-#ifdef LAYER_SHELL
-    {"layer-shell", 'l', 0, G_OPTION_ARG_NONE, &use_layer_shell,
-     "Use layer shell", NULL},
-#endif
+    /* #ifdef LAYER_SHELL
+        {"layer-shell", 'l', 0, G_OPTION_ARG_NONE, &use_layer_shell,
+         "Use layer shell", NULL},
+    #endif */
     {"config", 's', 0, G_OPTION_ARG_FILENAME, &config, "Config file to use",
      NULL},
     {NULL, 0, 0, 0, NULL, NULL, NULL}};
 
-#ifdef LAYER_SHELL
+/* #ifdef LAYER_SHELL
 static gboolean setup_layer_shell() {
   if (gtkgreet->use_layer_shell) {
     GdkDisplay *display = gdk_display_get_default();
@@ -53,14 +53,14 @@ static gboolean setup_layer_shell() {
     return FALSE;
   }
 }
-#else
+#else */
 static gboolean setup_layer_shell() { return FALSE; }
-#endif
+// #endif
 
 static void activate(GtkApplication *app, gpointer user_data) {
-#ifdef LAYER_SHELL
+/* #ifdef LAYER_SHELL
   gtkgreet->use_layer_shell = use_layer_shell;
-#endif
+#endif */
 
   if (!setup_layer_shell()) {
     gtkgreet->window = create_window(NULL);
