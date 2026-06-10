@@ -12,9 +12,9 @@ struct Window {
   GtkWidget *window;
   GtkBuilder *builder;
 
-#ifdef LAYER_SHELL
+/* #ifdef LAYER_SHELL
   gulong enter_notify_handler;
-#endif
+#endif */
 
   int question_cnt;
 };

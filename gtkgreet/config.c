@@ -195,6 +195,7 @@ static int attach_custom_layout(const char *path) {
   }
 
   GtkWidget *window = gtk_application_window_new(gtkgreet->app);
+  gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
   gtkgreet->window->builder = builder;
   gtkgreet->window->window = window;
   g_clear_error(&error);

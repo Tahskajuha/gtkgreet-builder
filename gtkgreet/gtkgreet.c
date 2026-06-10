@@ -23,9 +23,9 @@ struct GtkGreet *create_gtkgreet() {
 }
 
 void gtkgreet_activate(struct GtkGreet *gtkgreet) {
-#ifdef LAYER_SHELL
+/* #ifdef LAYER_SHELL
   window_setup_layershell(gtkgreet->window);
-#endif
+#endif */
   gtkgreet->question_type = QuestionTypeInitial;
   g_free(gtkgreet->question);
   gtkgreet->question = g_strdup(gtkgreet_get_initial_question());
