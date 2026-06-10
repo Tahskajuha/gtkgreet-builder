@@ -54,10 +54,13 @@ void push_widget_into_root(GtkBox *w) {
       if (row > max_row)
         max_row = row;
     }
-    gtk_grid_attach(GTK_GRID(uimodel->widgets[ROOT].w), GTK_WIDGET(w), 0, max_row + 1, 1,
-                    1);
+    gtk_grid_attach(GTK_GRID(uimodel->widgets[ROOT].w), GTK_WIDGET(w), 0,
+                    max_row + 1, 1, 1);
   } else if (GTK_IS_OVERLAY(uimodel->widgets[ROOT].w)) {
-    gtk_overlay_add_overlay(GTK_OVERLAY(uimodel->widgets[ROOT].w), GTK_WIDGET(w));
+    gtk_widget_set_halign(GTK_WIDGET(w), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_WIDGET(w), GTK_ALIGN_START);
+    gtk_overlay_add_overlay(GTK_OVERLAY(uimodel->widgets[ROOT].w),
+                            GTK_WIDGET(w));
   } else if (GTK_IS_STACK(uimodel->widgets[ROOT].w)) {
     gtk_stack_add_child(GTK_STACK(uimodel->widgets[ROOT].w), GTK_WIDGET(w));
   } else if (GTK_IS_FIXED(uimodel->widgets[ROOT].w)) {
@@ -65,7 +68,8 @@ void push_widget_into_root(GtkBox *w) {
   } else if (GTK_IS_CENTER_BOX(uimodel->widgets[ROOT].w)) {
     GPtrArray *essentials = g_ptr_array_new();
     collect_essential_widgets_in_subtree(
-        gtk_center_box_get_start_widget(GTK_CENTER_BOX(uimodel->widgets[ROOT].w)),
+        gtk_center_box_get_start_widget(
+            GTK_CENTER_BOX(uimodel->widgets[ROOT].w)),
         essentials);
     for (guint i = 0; i < essentials->len; i++) {
       GtkWidget *essentialWidget = g_ptr_array_index(essentials, i);
@@ -77,12 +81,14 @@ void push_widget_into_root(GtkBox *w) {
   } else if (GTK_IS_PANED(uimodel->widgets[ROOT].w)) {
     GPtrArray *essentials = g_ptr_array_new();
     collect_essential_widgets_in_subtree(
-        gtk_paned_get_start_child(GTK_PANED(uimodel->widgets[ROOT].w)), essentials);
+        gtk_paned_get_start_child(GTK_PANED(uimodel->widgets[ROOT].w)),
+        essentials);
     for (guint i = 0; i < essentials->len; i++) {
       GtkWidget *essentialWidget = g_ptr_array_index(essentials, i);
       gtk_box_append(w, essentialWidget);
     }
-    gtk_paned_set_start_child(GTK_PANED(uimodel->widgets[ROOT].w), GTK_WIDGET(w));
+    gtk_paned_set_start_child(GTK_PANED(uimodel->widgets[ROOT].w),
+                              GTK_WIDGET(w));
     g_ptr_array_free(essentials, FALSE);
   }
 }

@@ -149,33 +149,21 @@ static int populate_uimodel(GKeyFile *kf) {
     case ROOT:
       if (!w || !is_valid_root(w)) {
         critical_fallback();
+        g_object_unref(fb);
         return -1;
       }
       gtk_window_set_child(GTK_WINDOW(gtkgreet->window->window), w);
       break;
     case INITIAL_ANSWER:
-      if (!w || !is_readable_widget(w)) {
-        if (w)
-          gtk_widget_set_visible(w, FALSE);
-        w = create_fbInitialAnswer();
-        gtk_box_append(GTK_BOX(fb), w);
-        fbUsed = true;
-      }
-      break;
     case PAM_PROMPT_ANSWER:
-      if (!w || !is_readable_widget(w)) {
-        if (w)
-          gtk_widget_set_visible(w, FALSE);
-        w = create_fbPamPromptAnswer();
-        gtk_box_append(GTK_BOX(fb), w);
-        fbUsed = true;
-      }
-      break;
     case READ_COMMAND:
       if (!w || !is_readable_widget(w)) {
         if (w)
           gtk_widget_set_visible(w, FALSE);
-        w = create_fbReadCommand();
+        w = r == INITIAL_ANSWER
+                ? create_fbInitialAnswer()
+                : (r == PAM_PROMPT_ANSWER ? create_fbPamPromptAnswer()
+                                          : create_fbReadCommand());
         gtk_box_append(GTK_BOX(fb), w);
         fbUsed = true;
       }
